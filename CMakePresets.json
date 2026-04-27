@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "cli-debug",
+      "displayName": "CLI Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cli-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_CLI": "ON",
+        "ENABLE_GUI": "OFF",
+        "ENABLE_TESTS": "ON"
+      }
+    },
+    {
+      "name": "cli-release",
+      "displayName": "CLI Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/cli-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_CLI": "ON",
+        "ENABLE_GUI": "OFF",
+        "ENABLE_TESTS": "OFF"
+      }
+    },
+    {
+      "name": "gui-debug",
+      "displayName": "GUI Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gui-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_PREFIX_PATH": "C:/Qt/6.9.2/mingw_64",
+        "ENABLE_CLI": "OFF",
+        "ENABLE_GUI": "ON",
+        "ENABLE_TESTS": "ON"
+      }
+    },
+    {
+      "name": "gui-release",
+      "displayName": "GUI Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/gui-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_PREFIX_PATH": "C:/Qt/6.9.2/mingw_64",
+        "ENABLE_CLI": "OFF",
+        "ENABLE_GUI": "ON",
+        "ENABLE_TESTS": "OFF"
+      }
+    }
+  ]
+}
