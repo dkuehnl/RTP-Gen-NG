@@ -1,0 +1,88 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8">
+  <diagram name="Seite-1" id="lUcqipj7YOBR21g1ClB_">
+    <mxGraphModel dx="1426" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-1" value="Use-Case 1: RTP-stream with custom start-values (Seq, Timestamp, SSRC, PT, Marker, Seq-increase)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-2" value="Use-Case 2: Manipulate time-series" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-3" value="Use-Case 2.1: make a break in time for x ms/s (not sending any rtp in this time)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-4" value="Use-Case 2.2: change something after x ms/s" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-5" value="Use-Case 3.1: jump in Seq after x packets for x Seq (upper/lower)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-6" value="Combined:&amp;nbsp;&lt;div&gt;pause stream for x seconds after x seconds and skip/not skip x Seq&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="220" y="230" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-7" value="Use-Case 3: Manipulate Sequence" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="350" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-9" value="Use-Case 3.2: jump in Seq after time for x Seq (upper/lower)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-10" value="Use-Case 4: Manipulate Timestamp" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="670" y="90" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-11" value="Use-Case 4.1: jump in timestamp after x packets for x stamps (upper/lower)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="690" y="130" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-12" value="Use-Case 4.2: jump in timestamp after time for x stamps (upper/lower)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="690" y="170" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-13" value="Combined:&amp;nbsp;&lt;div&gt;Get out of sync of Seq and timestamp (just jumping only on one side)&amp;nbsp;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="590" y="230" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-14" value="Use-Case 5: Change SSRC" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-15" value="Use-Case 5.1: after x seconds" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="334" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-17" value="Use-Case 5.2: after x packets&amp;nbsp;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="364" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-18" value="Use-Case 5.3: continue Seq/Timestamp" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="394" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-19" value="Use-Case 5.4: use new Seq/Timestamp" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="424" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-21" value="Use-Case 6: Change Codec" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="350" y="300" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-23" value="Use-Case 6.1: after x seconds" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="330" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-24" value="Use-Case 6.2: after x packets&amp;nbsp;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="360" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-25" value="Use-Case 6.3: continue Seq/Timestamp" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="390" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-26" value="Use-Case 6.4: use new Seq/Timestamp" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="420" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-27" value="Use-Case 6.5: use new SSRC" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="370" y="454" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-28" value="Use-Case 7: General Packet Manipulation" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="670" y="300" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-29" value="Use-Case 7.1: not matching ptime/delta&amp;nbsp;&lt;div&gt;(eg packets every 30ms, but ptime 20 packed)&amp;nbsp;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="334" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_OXLyiNKJbZVz0B39Iel-30" value="Use-Case 7.2: not matching crypto-context (using sRTP in RTP connection and vice versa)" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="380" width="260" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
