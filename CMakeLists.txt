@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.22)
 #-----------------------------------------------------
 
 project(
-        project_name
+        RTPGen_NG
         VERSION 0.1.0
         LANGUAGES CXX
 )
@@ -28,7 +28,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 option(ENABLE_TESTS "Build tests" ON)
 option(ENABLE_GUI "Build Qt GUI" OFF)
-option(ENABLE_CLI "Build CLI application" OFF)
+option(ENABLE_CLI "Build CLI application" ON)
 
 #-----------------------------------------------------
 # warnings & compiler-flags

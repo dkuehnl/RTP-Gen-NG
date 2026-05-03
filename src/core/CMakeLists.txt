@@ -1,5 +1,7 @@
 add_library(core
-        calculator.cpp
+        StreamOptions.h
+        StreamOptionValidator.cpp
+        StreamOptionValidator.h
         #more .cpp-files placed here
 )
 

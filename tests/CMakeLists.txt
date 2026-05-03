@@ -21,7 +21,8 @@ FetchContent_MakeAvailable(googletest)
 
 # --- Test Executable ---
 add_executable(core_tests
-        calculator_test.cpp
+        StreamOptionValidatorBasicTest.cpp
+        StreamOptionValidatorScenarioTest.cpp
 )
 
 target_compile_definitions(core_tests
@@ -33,6 +34,7 @@ target_link_libraries(core_tests
         PRIVATE
         core
         gtest_main
+        gmock
 )
 
 include(GoogleTest)
