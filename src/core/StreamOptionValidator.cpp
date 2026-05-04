@@ -52,13 +52,68 @@ namespace {
         if (!opts.ssrc_changes.empty()) {
             for (const auto& entry : opts.ssrc_changes) {
                 if (entry.trigger.value == 0)
-                    result.warnings.push_back("No trigger-time for SSRC-change set, Event will be ignored.");
+                    result.warnings.emplace_back("No trigger-value for SSRC-change set, Event will be ignored.");
                 if (!entry.new_ssrc.has_value())
-                    result.warnings.push_back("No new SSRC for SSRC-Change-Event configured. Event will be ignored.");
+                    result.warnings.emplace_back("No new SSRC for SSRC-Change-Event configured. Event will be ignored.");
             }
 
             std::erase_if(opts.ssrc_changes, [](const SSRCChange& e) {
                 return e.trigger.value == 0 || !e.new_ssrc.has_value();
+            });
+        }
+
+        if (!opts.timestamp_changes.empty()) {
+            for (const auto& entry : opts.timestamp_changes) {
+                if (entry.trigger.value == 0)
+                    result.warnings.emplace_back("No trigger-value for Timestamp-change set, Event will be ignored.");
+                if (!entry.new_timestamp.has_value() && !entry.steps_to_jump.has_value())
+                    result.warnings.emplace_back("Neither new timestamp nor new step-size is set, Event will be ignored.");
+            }
+
+            std::erase_if(opts.timestamp_changes, [](const TimestampChange& e) {
+                return e.trigger.value == 0 || (!e.new_timestamp.has_value() && !e.steps_to_jump.has_value());
+            });
+        }
+
+        if (!opts.codec_changes.empty()) {
+            for (const auto& entry : opts.codec_changes) {
+                if (entry.trigger.value == 0)
+                    result.warnings.emplace_back("No trigger-value for Codec-change set, Event will be ignored.");
+                if (!entry.new_codec.has_value() && !entry.new_clockrate.has_value())
+                    result.warnings.emplace_back("No Settings for codec-change set, Event will be ignored.");
+                if (entry.use_new_ssrc && !entry.new_ssrc.has_value()) {
+                    result.warnings.emplace_back("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated.");
+                }
+            }
+
+            std::erase_if(opts.codec_changes, [](const CodecChange& e) {
+                return e.trigger.value == 0 || (!e.new_codec.has_value() && !e.new_clockrate.has_value());
+            });
+        }
+
+        if (!opts.sequence_changes.empty()) {
+            for (const auto& entry : opts.sequence_changes) {
+                if (entry.trigger.value == 0)
+                    result.warnings.emplace_back("No trigger-value for Sequence-change set, Event will be ignored.");
+                if (!entry.seq_to_jump.has_value())
+                    result.warnings.emplace_back("No value for Sequence-Jump provided, Event will be ignored.");
+            }
+
+            std::erase_if(opts.sequence_changes, [](const SequenceChange& e) {
+                return e.trigger.value == 0 || !e.seq_to_jump.has_value();
+            });
+        }
+
+        if (!opts.pause_stream.empty()) {
+            for (const auto& entry : opts.pause_stream) {
+                if (entry.trigger.value == 0)
+                    result.warnings.emplace_back("No trigger-value for Pause-change set, Event will be ignored.");
+                if (!entry.ms_to_pause.has_value())
+                    result.warnings.emplace_back("No value for Stream-Pause provided, Event will be ignored.");
+            }
+
+            std::erase_if(opts.pause_stream, [](const PauseStream& e) {
+                return e.trigger.value == 0 || !e.ms_to_pause.has_value();
             });
         }
 
