@@ -26,7 +26,7 @@ struct TimestampChange {
     Trigger trigger{};
     std::optional<uint32_t> new_timestamp{};
     std::optional<int16_t> steps_to_jump{};
-    bool continue_timestamp{true};
+    bool continue_seq{true};
 };
 
 struct CodecChange {
@@ -34,15 +34,14 @@ struct CodecChange {
     std::optional<uint8_t> new_codec{};
     std::optional<uint32_t> new_ssrc{};
     std::optional<uint16_t> new_clockrate{};
-    bool use_new_ssrc{true};
+    bool continue_ssrc{false};
     bool continue_seq{false};
     bool continue_timestamp{false};
 };
 
 struct SequenceChange {
     Trigger trigger{};
-    std::optional<int32_t> seq_to_jump{};
-
+    std::optional<int16_t> seq_to_jump{};
 };
 
 struct PauseStream {
@@ -70,7 +69,7 @@ struct StreamOptions {
     std::optional<uint16_t> start_clockrate{};
     std::vector<CodecChange> codec_changes{};
 
-    std::optional<uint32_t> start_seq{};
+    std::optional<uint16_t> start_seq{};
     std::optional<uint16_t> seq_steps{};
     std::vector<SequenceChange> sequence_changes{};
 
