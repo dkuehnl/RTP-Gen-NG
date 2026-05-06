@@ -71,6 +71,7 @@ struct TransportChange {
 
 struct StreamOptions {
     std::string input_file{};
+    bool save_config{false};
     std::string dest_ip{};
     std::optional<uint16_t> source_port{};
     std::optional<uint16_t> dest_port{};
