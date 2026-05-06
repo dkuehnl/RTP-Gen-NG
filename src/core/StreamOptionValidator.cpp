@@ -3,13 +3,14 @@
 //
 
 #include "StreamOptionValidator.h"
+#include "RandomGenerators.h"
 
 namespace {
     void check_ssrc_changes(std::vector<SSRCChange>& ssrc_changes, ValidationResult& result) {
         if (ssrc_changes.empty())
             return;
 
-        for (const auto& entry : ssrc_changes) {
+        for (auto& entry : ssrc_changes) {
             if (entry.trigger.value == 0) {
                 result.warnings.emplace_back("No trigger-value for SSRC-change set, Event will be ignored.");
                 continue;
@@ -18,10 +19,14 @@ namespace {
                 result.warnings.emplace_back("No new SSRC for SSRC-Change-Event configured. Event will be ignored.");
                 continue;
             }
-            if (!entry.continue_seq)
+            if (!entry.continue_seq) {
                 result.info.emplace_back("SSRC change with new sequencing activated, random start-sequence will be generated.");
-            if (!entry.continue_timestamp)
+                entry.seq_to_continue = rg::rtp::generate_sequence();
+            }
+            if (!entry.continue_timestamp) {
                 result.info.emplace_back("SSRC change with new timestamp activated, random start-timestamp will be generated.");
+                entry.timestamp_to_continue = rg::rtp::generate_timestamp();
+            }
         }
 
         std::erase_if(ssrc_changes, [](const SSRCChange& e) {
@@ -34,7 +39,7 @@ namespace {
         if (timestamp_changes.empty())
             return;
 
-        for (const auto& entry : timestamp_changes) {
+        for (auto& entry : timestamp_changes) {
             if (entry.trigger.value == 0) {
                 result.warnings.emplace_back("No trigger-value for Timestamp-change set, Event will be ignored.");
                 continue;
@@ -43,8 +48,10 @@ namespace {
                 result.warnings.emplace_back("Neither new timestamp nor new step-size is set, Event will be ignored.");
                 continue;
             }
-            if (!entry.continue_seq)
+            if (!entry.continue_seq) {
                 result.info.emplace_back("Timestamp change with new sequence numbering activated, random start-sequence will be generated.");
+                entry.seq_to_continue = rg::rtp::generate_sequence();
+            }
         }
 
         std::erase_if(timestamp_changes, [](const TimestampChange& e) {
@@ -56,7 +63,7 @@ namespace {
         if (codec_changes.empty())
             return;
 
-        for (const auto& entry : codec_changes) {
+        for (auto& entry : codec_changes) {
             if (entry.trigger.value == 0) {
                 result.warnings.emplace_back("No trigger-value for Codec-change set, Event will be ignored.");
                 continue;
@@ -66,14 +73,22 @@ namespace {
                 continue;
             }
 
-            if (!entry.continue_ssrc && !entry.new_ssrc.has_value())
+            if (!entry.continue_ssrc && !entry.ssrc_to_continue.has_value()) {
                 result.warnings.emplace_back("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated.");
+                entry.ssrc_to_continue = rg::rtp::generate_ssrc();
+            }
             if (entry.continue_ssrc)
                 result.warnings.emplace_back("Behavior not recommended in production. Codec-switch within one SSRC.");
-            if (entry.continue_seq)
+            if (entry.continue_seq) {
                 result.info.emplace_back("Sequencing will continue.");
-            if (entry.continue_timestamp)
+            } else {
+                entry.seq_to_continue = rg::rtp::generate_sequence();
+            }
+            if (entry.continue_timestamp) {
                 result.info.emplace_back("Timestamp will continue.");
+            } else {
+                entry.timestamp_to_continue = rg::rtp::generate_timestamp();
+            }
         }
 
         std::erase_if(codec_changes, [](const CodecChange& e) {
@@ -118,6 +133,34 @@ namespace {
 
         std::erase_if(pause_stream, [](const PauseStream& e) {
             return e.trigger.value == 0 || !e.ms_to_pause.has_value();
+        });
+    }
+
+    void check_transport_changes(std::vector<TransportChange>& transport_changes, ValidationResult& result) {
+        if (transport_changes.empty())
+            return;
+
+        for (const auto& entry : transport_changes) {
+            if (entry.trigger.value == 0) {
+                result.warnings.emplace_back("No trigger-value for Transport-change set, Event will be ignored.");
+                continue;
+            }
+            if (
+                !entry.new_dest_ip.has_value() &&
+                !entry.new_dest_port.has_value() &&
+                !entry.new_source_port.has_value() &&
+                !entry.use_random_new_source_port ) {
+                result.warnings.emplace_back("No value for Transport-change provided, Event will be ignored.");
+                continue;
+            }
+        }
+
+        std::erase_if(transport_changes, [](const TransportChange& e) {
+            return e.trigger.value == 0 || (
+                !e.new_dest_ip.has_value() &&
+                !e.new_dest_port.has_value() &&
+                !e.new_source_port.has_value() &&
+                !e.use_random_new_source_port );
         });
     }
 
@@ -170,6 +213,7 @@ namespace {
         check_codec_changes(opts.codec_changes, result);
         check_sequence_changes(opts.sequence_changes, result);
         check_pause_stream(opts.pause_stream, result);
+        check_transport_changes(opts.transport_changes, result);
 
         return result;
     }

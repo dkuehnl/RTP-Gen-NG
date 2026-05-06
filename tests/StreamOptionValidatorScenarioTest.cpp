@@ -81,12 +81,24 @@ TEST_F(SoSsrcScenarioTest, SetInfoIfSeqNotContinue) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
         .trigger = {TriggerType::AfterPackets, 100},
-        .new_ssrc = 0.334455,
+        .new_ssrc = 0x334455,
         .continue_seq = false
     });
 
     auto result = sov::check_configuration(opts);
     EXPECT_THAT(result.info, ::testing::Contains("SSRC change with new sequencing activated, random start-sequence will be generated."));
+}
+
+TEST_F(SoSsrcScenarioTest, GenerateRandomSeq) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0x334455,
+        .continue_seq = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.ssrc_changes[0].seq_to_continue.has_value());
 }
 
 TEST_F(SoSsrcScenarioTest, SetInfoIfTimestampNotContinue) {
@@ -99,6 +111,18 @@ TEST_F(SoSsrcScenarioTest, SetInfoIfTimestampNotContinue) {
 
     auto result = sov::check_configuration(opts);
     EXPECT_THAT(result.info, ::testing::Contains("SSRC change with new timestamp activated, random start-timestamp will be generated."));
+}
+
+TEST_F(SoSsrcScenarioTest, GenerateRandomTimestamp) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0.334455,
+        .continue_timestamp = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.ssrc_changes[0].timestamp_to_continue.has_value());
 }
 
 /******************************************************************
@@ -167,6 +191,18 @@ TEST_F(SoTimestampScenarioTest, SetInfoIfSeqNotContinue) {
     EXPECT_THAT(result.info, ::testing::Contains("Timestamp change with new sequence numbering activated, random start-sequence will be generated."));
 }
 
+TEST_F(SoTimestampScenarioTest, GenerateRandomSeq) {
+    auto opts = get_basic_opts();
+    opts.timestamp_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_timestamp = 5000,
+        .continue_seq = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.timestamp_changes[0].seq_to_continue.has_value());
+}
+
 /******************************************************************
  * Testing Codec Scenarios
 ******************************************************************/
@@ -201,7 +237,7 @@ TEST_F(SoCodecScenarioTest, NoWarningIfConfigSet) {
     opts.codec_changes.push_back({
         .trigger{TriggerType::AfterPackets, 100},
         .new_codec = 8,
-        .new_ssrc = 0x223344
+        .ssrc_to_continue = 0x223344
     });
 
     auto result = sov::check_configuration(opts);
@@ -213,7 +249,7 @@ TEST_F(SoCodecScenarioTest, RemoveOnlyInvalid) {
     opts.codec_changes.push_back({
         .trigger{TriggerType::AfterPackets, 100},
         .new_codec = 8,
-        .new_ssrc = 0x223344
+        .ssrc_to_continue = 0x223344
     });
     opts.codec_changes.push_back({
         .trigger{TriggerType::AfterPackets, 100}
@@ -259,7 +295,6 @@ TEST_F(SoCodecScenarioTest, SetInfoIfTimestampContinues) {
     EXPECT_THAT(result.info, ::testing::Contains("Timestamp will continue."));
 }
 
-//Move this test to all the Default-Change-Info-Messages
 TEST_F(SoCodecScenarioTest, GenerateWarningIfSsrcNotConinuedButNoneProvided) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
@@ -270,6 +305,40 @@ TEST_F(SoCodecScenarioTest, GenerateWarningIfSsrcNotConinuedButNoneProvided) {
 
     auto result = sov::check_configuration(opts);
     EXPECT_THAT(result.warnings, ::testing::Contains("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated."));
+}
+
+TEST_F(SoCodecScenarioTest, GenerateRandomSSRC) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .new_codec = 9,
+        .continue_ssrc = false,
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.codec_changes[0].ssrc_to_continue.has_value());
+}
+
+TEST_F(SoCodecScenarioTest, GenerateRandomSeq) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .new_codec = 9
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.codec_changes[0].seq_to_continue.has_value());
+}
+
+TEST_F(SoCodecScenarioTest, GenerateRandomTimestamp) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .new_codec = 9
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_TRUE(opts.codec_changes[0].timestamp_to_continue.has_value());
 }
 
 /******************************************************************
@@ -378,4 +447,58 @@ TEST_F(SoPauseScenarioTest, RemoveOnlyInvalid) {
 
     auto result = sov::check_configuration(opts);
     ASSERT_EQ(opts.pause_stream.size(), 1);
+}
+
+/******************************************************************
+ * Testing Transport Scenarios
+******************************************************************/
+
+
+class SoTransportScenarioTest : public ::testing::Test {
+protected:
+};
+
+TEST_F(SoTransportScenarioTest, EmptyTriggerTimeGeneratesWarning) {
+    auto opts = get_basic_opts();
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets}
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.warnings, ::testing::Contains("No trigger-value for Transport-change set, Event will be ignored."));
+}
+
+TEST_F(SoTransportScenarioTest, NoSettingGeneratesWarning) {
+    auto opts = get_basic_opts();
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100}
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.warnings, ::testing::Contains("No value for Transport-change provided, Event will be ignored."));
+}
+
+TEST_F(SoTransportScenarioTest, SettingRandomSourceGetsNoWarning) {
+    auto opts = get_basic_opts();
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .use_random_new_source_port = true
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_EQ(result.warnings.size(), 0);
+}
+
+TEST_F(SoTransportScenarioTest, RemoveOnlyInvalid) {
+    auto opts = get_basic_opts();
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .new_dest_ip = "192.168.178.1"
+    });
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100}
+    });
+
+    auto result = sov::check_configuration(opts);
+    ASSERT_EQ(opts.transport_changes.size(), 1);
 }
