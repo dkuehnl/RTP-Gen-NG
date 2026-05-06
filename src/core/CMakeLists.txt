@@ -2,6 +2,8 @@ add_library(core
         StreamOptions.h
         StreamOptionValidator.cpp
         StreamOptionValidator.h
+        RandomGenerators.cpp
+        RandomGenerators.h
         #more .cpp-files placed here
 )
 
