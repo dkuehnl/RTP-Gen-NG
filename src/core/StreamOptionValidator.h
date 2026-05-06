@@ -13,6 +13,7 @@ struct ValidationResult {
     bool ok{};
     std::vector<std::string> errors{};
     std::vector<std::string> warnings{};
+    std::vector<std::string> info{};
 };
 
 namespace sov {
