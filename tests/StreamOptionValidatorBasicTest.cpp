@@ -10,26 +10,26 @@
  * Testing for valid Inputs
 ******************************************************************/
 
-class SOValidatorTest : public ::testing::Test {
+class SoValidatorTest : public ::testing::Test {
 protected:
     StreamOptions empty_opts{};
 };
 
-TEST_F(SOValidatorTest, DetectMissingIP) {
+TEST_F(SoValidatorTest, DetectMissingIP) {
     auto result = sov::check_configuration(empty_opts);
 
     ASSERT_FALSE(result.ok);
     EXPECT_THAT(result.errors, ::testing::Contains("No dest_ip set"));
 }
 
-TEST_F(SOValidatorTest, DetectMissingDestPort) {
+TEST_F(SoValidatorTest, DetectMissingDestPort) {
     auto result = sov::check_configuration(empty_opts);
 
     ASSERT_FALSE(result.ok);
     EXPECT_THAT(result.errors, ::testing::Contains("No destination-port set"));
 }
 
-TEST_F(SOValidatorTest, DetectInvalidDestPort) {
+TEST_F(SoValidatorTest, DetectInvalidDestPort) {
     empty_opts.dest_port = 22;
     auto result = sov::check_configuration(empty_opts);
 
@@ -37,7 +37,7 @@ TEST_F(SOValidatorTest, DetectInvalidDestPort) {
     EXPECT_THAT(result.errors, ::testing::Contains("Invalid destination-port set"));
 }
 
-TEST_F(SOValidatorTest, DetectInvalidSourcePort) {
+TEST_F(SoValidatorTest, DetectInvalidSourcePort) {
     empty_opts.source_port = 22;
     auto result = sov::check_configuration(empty_opts);
 
@@ -50,7 +50,7 @@ TEST_F(SOValidatorTest, DetectInvalidSourcePort) {
 ******************************************************************/
 
 
-class SODefaultsTest : public ::testing::Test {
+class SoDefaultsTest : public ::testing::Test {
 protected:
     StreamOptions empty_opts{};
 
@@ -60,16 +60,16 @@ protected:
 };
 
 
-TEST_F(SODefaultsTest, SetDefaultPtimes) {
+TEST_F(SoDefaultsTest, SetDefaultPtimes) {
     EXPECT_EQ(empty_opts.ptime_in_packet.value(), 20);
     EXPECT_EQ(empty_opts.ptime_btw_packet.value(), 20);
 }
 
-TEST_F(SODefaultsTest, SetDefaultSourcePort) {
+TEST_F(SoDefaultsTest, SetDefaultSourcePort) {
     EXPECT_EQ(empty_opts.source_port.value(), 30000);
 }
 
-TEST_F(SODefaultsTest, SetDefaultRTPSettings) {
+TEST_F(SoDefaultsTest, SetDefaultRTPSettings) {
     EXPECT_EQ(empty_opts.start_ssrc.value(), 0x112233);
     EXPECT_EQ(empty_opts.start_timestamp.value(), 0);
     EXPECT_EQ(empty_opts.start_codec.value(), 8);
@@ -78,7 +78,7 @@ TEST_F(SODefaultsTest, SetDefaultRTPSettings) {
     EXPECT_EQ(empty_opts.start_clockrate.value(), 8000);
 }
 
-TEST_F(SODefaultsTest, SetDefaultTimestampStepSize) {
+TEST_F(SoDefaultsTest, SetDefaultTimestampStepSize) {
     EXPECT_EQ(empty_opts.timestamp_step_size.value(), 160);
 }
 

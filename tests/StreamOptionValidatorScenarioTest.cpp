@@ -77,6 +77,30 @@ TEST_F(SoSsrcScenarioTest, RemoveOnlyInvalid) {
     ASSERT_EQ(opts.ssrc_changes.size(), 1);
 }
 
+TEST_F(SoSsrcScenarioTest, SetInfoIfSeqNotContinue) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0.334455,
+        .continue_seq = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.info, ::testing::Contains("SSRC change with new sequencing activated, random start-sequence will be generated."));
+}
+
+TEST_F(SoSsrcScenarioTest, SetInfoIfTimestampNotContinue) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0.334455,
+        .continue_timestamp = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.info, ::testing::Contains("SSRC change with new timestamp activated, random start-timestamp will be generated."));
+}
+
 /******************************************************************
  * Testing Timestamp Scenarios
 ******************************************************************/
@@ -131,6 +155,18 @@ TEST_F(SoTimestampScenarioTest, RemoveOnlyInvalid) {
     ASSERT_EQ(opts.timestamp_changes.size(), 1);
 }
 
+TEST_F(SoTimestampScenarioTest, SetInfoIfSeqNotContinue) {
+    auto opts = get_basic_opts();
+    opts.timestamp_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_timestamp = 5000,
+        .continue_seq = false
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.info, ::testing::Contains("Timestamp change with new sequence numbering activated, random start-sequence will be generated."));
+}
+
 /******************************************************************
  * Testing Codec Scenarios
 ******************************************************************/
@@ -160,18 +196,6 @@ TEST_F(SoCodecScenarioTest, NoSettingGeneratesWarning) {
     EXPECT_THAT(result.warnings, ::testing::Contains("No Settings for codec-change set, Event will be ignored."));
 }
 
-//Move this test to all the Default-Change-Info-Messages
-TEST_F(SoCodecScenarioTest, GenerateWarningIfUseNewSSRCIsSetButNoneProvided) {
-    auto opts = get_basic_opts();
-    opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
-        .use_new_ssrc = true,
-    });
-
-    auto result = sov::check_configuration(opts);
-    EXPECT_THAT(result.warnings, ::testing::Contains("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated."));
-}
-
 TEST_F(SoCodecScenarioTest, NoWarningIfConfigSet) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
@@ -197,6 +221,55 @@ TEST_F(SoCodecScenarioTest, RemoveOnlyInvalid) {
 
     auto result = sov::check_configuration(opts);
     ASSERT_EQ(opts.codec_changes.size(), 1);
+}
+
+TEST_F(SoCodecScenarioTest, SetWarningIfSsrcContinues) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+        .continue_ssrc = true
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.warnings, ::testing::Contains("Behavior not recommended in production. Codec-switch within one SSRC."));
+}
+
+TEST_F(SoCodecScenarioTest, SetInfoIfSeqContinues) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+        .continue_seq = true
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.info, ::testing::Contains("Sequencing will continue."));
+}
+
+TEST_F(SoCodecScenarioTest, SetInfoIfTimestampContinues) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+        .continue_timestamp = true
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.info, ::testing::Contains("Timestamp will continue."));
+}
+
+//Move this test to all the Default-Change-Info-Messages
+TEST_F(SoCodecScenarioTest, GenerateWarningIfSsrcNotConinuedButNoneProvided) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+        .new_codec = 9,
+        .continue_ssrc = false,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_THAT(result.warnings, ::testing::Contains("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated."));
 }
 
 /******************************************************************
