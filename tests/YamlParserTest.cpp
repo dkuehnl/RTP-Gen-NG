@@ -15,6 +15,7 @@ protected:
     std::string complete_config = std::string(TEST_DATA_DIR) + "complete_config.yaml";
     std::string no_event_config = std::string(TEST_DATA_DIR) + "no_event_config.yaml";
     std::string minimal_config = std::string(TEST_DATA_DIR) + "minimal_config.yaml";
+    std::string unknown_change_event = std::string(TEST_DATA_DIR) + "unknown_change_event.yaml";
 };
 
 TEST_F(YamlParserTest, ThrowExceptionIfFileNotFound) {
@@ -133,4 +134,13 @@ TEST_F(YamlParserTest, NoExceptionWithMinimalConfig) {
     EXPECT_NO_THROW({
         auto opts = yaml::parse(minimal_config);
     });
+}
+
+TEST_F(YamlParserTest, ThrowExceptionIfUnknownChangeEvent) {
+    try {
+        yaml::parse(unknown_change_event);
+        FAIL() << "Expected YamlUnknownChangeEvent";
+    } catch (const YamlUnknownChangeEvent& e) {
+        EXPECT_THAT(e.what(), ::testing::HasSubstr("Unknown Change-Event: invalidC"));
+    }
 }

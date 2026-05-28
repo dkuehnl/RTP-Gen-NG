@@ -28,6 +28,12 @@ public:
         : std::runtime_error(msg) {}
 };
 
+class YamlUnknownChangeEvent : public std::runtime_error {
+public:
+    explicit YamlUnknownChangeEvent (const std::string& msg)
+        : std::runtime_error(msg) {}
+};
+
 
 namespace yaml {
     StreamOptions parse(const std::string& filepath);

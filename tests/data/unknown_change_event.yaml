@@ -1,0 +1,15 @@
+connectionDetails:
+  destinationIP: 192.168.178.1
+  destinationPort: 34000
+  sourcePort: 35000
+  useTCP: no
+changes:
+  - type: invalidChange
+    trigger:
+      type: AfterPackets
+      value: 100
+    newSsrc: 0x445566
+    continueSeq: no
+    seqToContinue: 300
+    continueTimestamp: no
+    timestampToContinue: 320
