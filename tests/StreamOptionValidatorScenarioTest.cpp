@@ -77,6 +77,30 @@ TEST_F(SoSsrcScenarioTest, RemoveOnlyInvalid) {
     ASSERT_EQ(opts.ssrc_changes.size(), 1);
 }
 
+TEST_F(SoSsrcScenarioTest, SetDefaultToContinueSeq) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0x334455,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_TRUE(opts.ssrc_changes[0].continue_seq.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue Seq (true)"));
+}
+
+TEST_F(SoSsrcScenarioTest, SetDefaultToContinueTimestamp) {
+    auto opts = get_basic_opts();
+    opts.ssrc_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_ssrc = 0x334455,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_TRUE(opts.ssrc_changes[0].continue_timestamp.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue Timestamp (true)"));
+}
+
 TEST_F(SoSsrcScenarioTest, SetInfoIfSeqNotContinue) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
@@ -179,6 +203,18 @@ TEST_F(SoTimestampScenarioTest, RemoveOnlyInvalid) {
     ASSERT_EQ(opts.timestamp_changes.size(), 1);
 }
 
+TEST_F(SoTimestampScenarioTest, SetDefaultToContinueSeq) {
+    auto opts = get_basic_opts();
+    opts.timestamp_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_timestamp = 5000,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_TRUE(opts.timestamp_changes[0].continue_seq.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue Seq (true)"));
+}
+
 TEST_F(SoTimestampScenarioTest, SetInfoIfSeqNotContinue) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
@@ -259,6 +295,18 @@ TEST_F(SoCodecScenarioTest, RemoveOnlyInvalid) {
     ASSERT_EQ(opts.codec_changes.size(), 1);
 }
 
+TEST_F(SoCodecScenarioTest, SetDefaultToContinueSsrc) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_FALSE(opts.codec_changes[0].continue_ssrc.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue SSRC (false)"));
+}
+
 TEST_F(SoCodecScenarioTest, SetWarningIfSsrcContinues) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
@@ -271,6 +319,18 @@ TEST_F(SoCodecScenarioTest, SetWarningIfSsrcContinues) {
     EXPECT_THAT(result.warnings, ::testing::Contains("Behavior not recommended in production. Codec-switch within one SSRC."));
 }
 
+TEST_F(SoCodecScenarioTest, SetDefaultToContinueSeq) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_FALSE(opts.codec_changes[0].continue_seq.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue Seq (false)"));
+}
+
 TEST_F(SoCodecScenarioTest, SetInfoIfSeqContinues) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
@@ -281,6 +341,18 @@ TEST_F(SoCodecScenarioTest, SetInfoIfSeqContinues) {
 
     auto result = sov::check_configuration(opts);
     EXPECT_THAT(result.info, ::testing::Contains("Sequencing will continue."));
+}
+
+TEST_F(SoCodecScenarioTest, SetDefaultToContinueTimestamp) {
+    auto opts = get_basic_opts();
+    opts.codec_changes.push_back({
+        .trigger = {TriggerType::AfterPackets, 100},
+        .new_codec = 5,
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_FALSE(opts.codec_changes[0].continue_timestamp.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to continue Timestamp (false)"));
 }
 
 TEST_F(SoCodecScenarioTest, SetInfoIfTimestampContinues) {
@@ -476,6 +548,17 @@ TEST_F(SoTransportScenarioTest, NoSettingGeneratesWarning) {
 
     auto result = sov::check_configuration(opts);
     EXPECT_THAT(result.warnings, ::testing::Contains("No value for Transport-change provided, Event will be ignored."));
+}
+
+TEST_F(SoTransportScenarioTest, SetDefaultToUseRandomSourcePort) {
+    auto opts = get_basic_opts();
+    opts.transport_changes.push_back({
+        .trigger{TriggerType::AfterPackets, 100},
+    });
+
+    auto result = sov::check_configuration(opts);
+    EXPECT_FALSE(opts.transport_changes[0].use_random_new_source_port.value());
+    EXPECT_THAT(result.info, ::testing::Contains("Set default to use random Source Port (false)"));
 }
 
 TEST_F(SoTransportScenarioTest, SettingRandomSourceGetsNoWarning) {

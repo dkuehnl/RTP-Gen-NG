@@ -2,7 +2,7 @@ if (NOT ENABLE_TESTS)
     return()
 endif()
 
-set(TEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+set(TEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data/")
 
 include(FetchContent)
 
@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(core_tests
         StreamOptionValidatorBasicTest.cpp
         StreamOptionValidatorScenarioTest.cpp
+        YamlParserTest.cpp
 )
 
 target_compile_definitions(core_tests

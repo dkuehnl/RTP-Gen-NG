@@ -19,10 +19,10 @@ struct SSRCChange {
     Trigger trigger{};
     std::optional<uint32_t> new_ssrc{};
 
-    bool continue_seq{true};
+    std::optional<bool>  continue_seq{};
     std::optional<uint16_t> seq_to_continue{};
 
-    bool continue_timestamp{true};
+    std::optional<bool>  continue_timestamp{};
     std::optional<uint32_t> timestamp_to_continue{};
 };
 
@@ -30,8 +30,9 @@ struct TimestampChange {
     Trigger trigger{};
     std::optional<uint32_t> new_timestamp{};
     std::optional<int16_t> steps_to_jump{};
+    //Step-Size ändern?
 
-    bool continue_seq{true};
+    std::optional<bool>  continue_seq{};
     std::optional<uint16_t> seq_to_continue{};
 };
 
@@ -40,13 +41,13 @@ struct CodecChange {
     std::optional<uint8_t> new_codec{};
     std::optional<uint16_t> new_clockrate{};
 
-    bool continue_ssrc{false};
+    std::optional<bool>  continue_ssrc{};
     std::optional<uint32_t> ssrc_to_continue{};
 
-    bool continue_seq{false};
+    std::optional<bool>  continue_seq{};
     std::optional<uint16_t> seq_to_continue{};
 
-    bool continue_timestamp{false};
+    std::optional<bool>  continue_timestamp{};
     std::optional<uint32_t> timestamp_to_continue{};
 };
 
@@ -65,17 +66,20 @@ struct TransportChange {
     std::optional<std::string> new_dest_ip{};
     std::optional<uint16_t> new_dest_port{};
 
-    bool use_random_new_source_port{false};
+    std::optional<bool>  use_random_new_source_port{};
     std::optional<uint16_t> new_source_port{};
 };
 
+//Only dest_ip and dest_port are mandatory to provide. For all other options will be a default-setter.
 struct StreamOptions {
     std::string input_file{};
     bool save_config{false};
     std::string dest_ip{};
-    std::optional<uint16_t> source_port{};
+    //It's mandatory to set dest-port. std::optional is used because dest_port=0 is a valid use-case for this tool
     std::optional<uint16_t> dest_port{};
-    bool use_tcp{false};
+    std::optional<uint16_t> source_port{};
+    std::optional<bool> use_tcp{};
+
     std::optional<uint8_t> ptime_in_packet{};
     std::optional<uint8_t> ptime_btw_packet{};
 

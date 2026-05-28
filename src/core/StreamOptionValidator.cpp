@@ -19,11 +19,19 @@ namespace {
                 result.warnings.emplace_back("No new SSRC for SSRC-Change-Event configured. Event will be ignored.");
                 continue;
             }
-            if (!entry.continue_seq) {
+            if (!entry.continue_seq.has_value()) {
+                entry.continue_seq = true;
+                result.info.emplace_back("Set default to continue Seq (true)");
+            }
+            if (!entry.continue_seq.value()) {
                 result.info.emplace_back("SSRC change with new sequencing activated, random start-sequence will be generated.");
                 entry.seq_to_continue = rg::rtp::generate_sequence();
             }
-            if (!entry.continue_timestamp) {
+            if (!entry.continue_timestamp.has_value()) {
+                entry.continue_timestamp = true;
+                result.info.emplace_back("Set default to continue Timestamp (true)");
+            }
+            if (!entry.continue_timestamp.value()) {
                 result.info.emplace_back("SSRC change with new timestamp activated, random start-timestamp will be generated.");
                 entry.timestamp_to_continue = rg::rtp::generate_timestamp();
             }
@@ -48,7 +56,12 @@ namespace {
                 result.warnings.emplace_back("Neither new timestamp nor new step-size is set, Event will be ignored.");
                 continue;
             }
-            if (!entry.continue_seq) {
+            if (!entry.continue_seq.has_value()) {
+                entry.continue_seq = true;
+                result.info.emplace_back("Set default to continue Seq (true)");
+                continue;
+            }
+            if (!entry.continue_seq.value()) {
                 result.info.emplace_back("Timestamp change with new sequence numbering activated, random start-sequence will be generated.");
                 entry.seq_to_continue = rg::rtp::generate_sequence();
             }
@@ -72,19 +85,32 @@ namespace {
                 result.warnings.emplace_back("No Settings for codec-change set, Event will be ignored.");
                 continue;
             }
+            if (!entry.continue_ssrc.has_value()) {
+                entry.continue_ssrc = false;
+                result.info.emplace_back("Set default to continue SSRC (false)");
+            }
+            if (!entry.continue_seq.has_value()) {
+                entry.continue_seq = false;
+                result.info.emplace_back("Set default to continue Seq (false)");
+            }
+            if (!entry.continue_timestamp.has_value()) {
+                entry.continue_timestamp = false;
+                result.info.emplace_back("Set default to continue Timestamp (false)");
+            }
 
-            if (!entry.continue_ssrc && !entry.ssrc_to_continue.has_value()) {
+            if (!entry.continue_ssrc.value() && !entry.ssrc_to_continue.has_value()) {
                 result.warnings.emplace_back("No new SSRC provided, but SSRC-change configured. Random new SSRC will be generated.");
                 entry.ssrc_to_continue = rg::rtp::generate_ssrc();
             }
-            if (entry.continue_ssrc)
+
+            if (entry.continue_ssrc.value())
                 result.warnings.emplace_back("Behavior not recommended in production. Codec-switch within one SSRC.");
-            if (entry.continue_seq) {
+            if (entry.continue_seq.value()) {
                 result.info.emplace_back("Sequencing will continue.");
             } else {
                 entry.seq_to_continue = rg::rtp::generate_sequence();
             }
-            if (entry.continue_timestamp) {
+            if (entry.continue_timestamp.value()) {
                 result.info.emplace_back("Timestamp will continue.");
             } else {
                 entry.timestamp_to_continue = rg::rtp::generate_timestamp();
@@ -140,16 +166,20 @@ namespace {
         if (transport_changes.empty())
             return;
 
-        for (const auto& entry : transport_changes) {
+        for (auto& entry : transport_changes) {
             if (entry.trigger.value == 0) {
                 result.warnings.emplace_back("No trigger-value for Transport-change set, Event will be ignored.");
                 continue;
+            }
+            if (!entry.use_random_new_source_port.has_value()) {
+                entry.use_random_new_source_port = false;
+                result.info.emplace_back("Set default to use random Source Port (false)");
             }
             if (
                 !entry.new_dest_ip.has_value() &&
                 !entry.new_dest_port.has_value() &&
                 !entry.new_source_port.has_value() &&
-                !entry.use_random_new_source_port ) {
+                !entry.use_random_new_source_port.value() ) {
                 result.warnings.emplace_back("No value for Transport-change provided, Event will be ignored.");
                 continue;
             }
@@ -160,7 +190,7 @@ namespace {
                 !e.new_dest_ip.has_value() &&
                 !e.new_dest_port.has_value() &&
                 !e.new_source_port.has_value() &&
-                !e.use_random_new_source_port );
+                !e.use_random_new_source_port.value() );
         });
     }
 
@@ -189,6 +219,7 @@ namespace {
 
     void apply_defaults(StreamOptions& opts) {
         if (!opts.source_port.has_value()) opts.source_port = 30000;
+        if (!opts.use_tcp.has_value()) opts.use_tcp = false;
 
         if (!opts.ptime_in_packet.has_value()) opts.ptime_in_packet = 20;
         if (!opts.ptime_btw_packet.has_value()) opts.ptime_btw_packet = 20;
