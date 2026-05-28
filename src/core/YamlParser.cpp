@@ -34,7 +34,7 @@ namespace {
         throw YamlUnknownTriggerType("Unknown Trigger type: " + type);
     }
 
-    SSRCChange parse_ssrc_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    SSRCChange parse_ssrc_change(const TriggerType& type, const YAML::Node& change) {
         SSRCChange sc;
 
         sc.trigger.type = type;
@@ -48,7 +48,7 @@ namespace {
         return sc;
     }
 
-    TimestampChange parse_timestamp_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    TimestampChange parse_timestamp_change(const TriggerType& type, const YAML::Node& change) {
         TimestampChange tc;
 
         tc.trigger.type = type;
@@ -61,7 +61,7 @@ namespace {
         return tc;
     }
 
-    CodecChange parse_codec_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    CodecChange parse_codec_change(const TriggerType& type, const YAML::Node& change) {
         CodecChange cc;
 
         cc.trigger.type = type;
@@ -78,7 +78,7 @@ namespace {
         return cc;
     }
 
-    SequenceChange parse_sequence_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    SequenceChange parse_sequence_change(const TriggerType& type, const YAML::Node& change) {
         SequenceChange sc;
 
         sc.trigger.type = type;
@@ -88,7 +88,7 @@ namespace {
         return sc;
     }
 
-    PauseStream parse_pause_stream(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    PauseStream parse_pause_stream(const TriggerType& type, const YAML::Node& change) {
         PauseStream ps;
 
         ps.trigger.type = type;
@@ -98,7 +98,7 @@ namespace {
         return ps;
     }
 
-    TransportChange parse_transport_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+    TransportChange parse_transport_change(const TriggerType& type, const YAML::Node& change) {
         TransportChange tc;
 
         tc.trigger.type = type;
