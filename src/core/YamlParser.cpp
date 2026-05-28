@@ -69,11 +69,11 @@ namespace yaml {
                 SSRCChange sc;
                 sc.trigger.type = type;
                 sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                sc.new_ssrc = change["newSsrc"].as<uint32_t>();
-                sc.continue_seq = change["continueSeq"].as<bool>();
-                sc.seq_to_continue = change["seqToContinue"].as<uint16_t>();
-                sc.continue_timestamp = change["continueTimestamp"].as<bool>();
-                sc.timestamp_to_continue = change["timestampToContinue"].as<uint32_t>();
+                set_if_defined(change, "newSsrc", sc.new_ssrc);
+                set_if_defined(change, "continueSeq", sc.continue_seq);
+                set_if_defined(change, "seqToContinue", sc.seq_to_continue);
+                set_if_defined(change, "continueTimestamp", sc.continue_timestamp);
+                set_if_defined(change, "timestampToContinue", sc.timestamp_to_continue);
 
                 opt.ssrc_changes.push_back(sc);
             } else if (event_type == "timestampChange") {
