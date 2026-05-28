@@ -33,6 +33,20 @@ namespace {
         if (type == "AfterSeconds") return TriggerType::AfterSeconds;
         throw YamlUnknownTriggerType("Unknown Trigger type: " + type);
     }
+
+    SSRCChange parse_ssrc_change(const TriggerType& type, const YAML::detail::iterator_value& change) {
+        SSRCChange sc;
+
+        sc.trigger.type = type;
+        sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        set_if_defined(change, "newSsrc", sc.new_ssrc);
+        set_if_defined(change, "continueSeq", sc.continue_seq);
+        set_if_defined(change, "seqToContinue", sc.seq_to_continue);
+        set_if_defined(change, "continueTimestamp", sc.continue_timestamp);
+        set_if_defined(change, "timestampToContinue", sc.timestamp_to_continue);
+
+        return sc;
+    }
 }
 
 namespace yaml {
@@ -66,15 +80,7 @@ namespace yaml {
             auto type = get_trigger_type(trigger_type);
 
             if (event_type == "ssrcChange") {
-                SSRCChange sc;
-                sc.trigger.type = type;
-                sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                set_if_defined(change, "newSsrc", sc.new_ssrc);
-                set_if_defined(change, "continueSeq", sc.continue_seq);
-                set_if_defined(change, "seqToContinue", sc.seq_to_continue);
-                set_if_defined(change, "continueTimestamp", sc.continue_timestamp);
-                set_if_defined(change, "timestampToContinue", sc.timestamp_to_continue);
-
+                auto sc = parse_ssrc_change(type, change);
                 opt.ssrc_changes.push_back(sc);
             } else if (event_type == "timestampChange") {
                 TimestampChange tc;
