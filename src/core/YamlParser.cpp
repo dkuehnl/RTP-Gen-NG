@@ -92,14 +92,14 @@ namespace yaml {
 
                 cc.trigger.type = type;
                 cc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                cc.new_codec = change["newCodec"].as<uint8_t>();
-                cc.new_clockrate = change["newClockrate"].as<uint16_t>();
-                cc.continue_ssrc = change["continueSsrc"].as<bool>();
-                cc.ssrc_to_continue = change["ssrcToContinue"].as<uint32_t>();
-                cc.continue_seq = change["continueSeq"].as<bool>();
-                cc.seq_to_continue = change["seqToContinue"].as<uint16_t>();
-                cc.continue_timestamp = change["continueTimestamp"].as<bool>();
-                cc.timestamp_to_continue = change["timestampToContinue"].as<uint32_t>();
+                set_if_defined(change, "newCodec", cc.new_codec);
+                set_if_defined(change, "newClockrate", cc.new_clockrate);
+                set_if_defined(change, "continueSsrc", cc.continue_ssrc);
+                set_if_defined(change, "ssrcToContinue", cc.ssrc_to_continue);
+                set_if_defined(change, "continueSeq", cc.continue_seq);
+                set_if_defined(change, "seqToContinue", cc.seq_to_continue);
+                set_if_defined(change, "continueTimestamp", cc.continue_timestamp);
+                set_if_defined(change, "timestampToContinue", cc.timestamp_to_continue);
 
                 opt.codec_changes.push_back(cc);
             } else if (event_type == "sequenceChange") {
