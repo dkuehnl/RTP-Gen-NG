@@ -81,10 +81,10 @@ namespace yaml {
 
                 tc.trigger.type = type;
                 tc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                tc.steps_to_jump = change["stepsToJump"].as<int16_t>();
-                tc.new_timestamp = change["newTimestamp"].as<uint32_t>();
-                tc.continue_seq = change["continueSeq"].as<bool>();
-                tc.seq_to_continue = change["seqToContinue"].as<uint16_t>();
+                set_if_defined(change, "stepsToJump", tc.steps_to_jump);
+                set_if_defined(change, "newTimestamp", tc.new_timestamp);
+                set_if_defined(change, "continueSeq", tc.continue_seq);
+                set_if_defined(change, "seqToContinue", tc.seq_to_continue);
 
                 opt.timestamp_changes.push_back(tc);
             } else if (event_type == "codecChange") {
