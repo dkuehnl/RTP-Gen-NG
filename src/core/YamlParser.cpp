@@ -123,10 +123,10 @@ namespace yaml {
 
                 tc.trigger.type = type;
                 tc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                tc.new_dest_ip = change["newDestIp"].as<std::string>();
-                tc.new_dest_port = change["newDestPort"].as<uint16_t>();
-                tc.use_random_new_source_port = change["useRandomNewSourcePort"].as<bool>();
-                tc.new_source_port = change["newSourcePort"].as<uint16_t>();
+                set_if_defined(change, "newDestIp", tc.new_dest_ip);
+                set_if_defined(change, "newDestPort", tc.new_dest_port);
+                set_if_defined(change, "useRandomNewSourcePort", tc.use_random_new_source_port);
+                set_if_defined(change, "newSourcePort", tc.new_source_port);
 
                 opt.transport_changes.push_back(tc);
             }
