@@ -88,7 +88,7 @@ namespace {
         return sc;
     }
 
-    PauseStream parse_pause_stream(const TriggerType& type, const YAML::Node& change) {
+    PauseStream parse_pause_stream_change(const TriggerType& type, const YAML::Node& change) {
         PauseStream ps;
 
         ps.trigger.type = type;
@@ -139,6 +139,10 @@ namespace {
     }
 
     void parse_change_events(const YAML::Node& config, StreamOptions& opt) {
+        if (!config["changes"].IsDefined()) {
+            return;
+        }
+
         for (const auto& change : config["changes"]) {
             auto event_type = change["type"].as<std::string>();
             auto trigger_type = change["trigger"]["type"].as<std::string>();
@@ -153,7 +157,7 @@ namespace {
             } else if (event_type == "sequenceChange") {
                 opt.sequence_changes.push_back(parse_sequence_change(type, change));
             }  else if (event_type == "pauseStream") {
-                opt.pause_stream.push_back(parse_pause_stream(type, change));
+                opt.pause_stream.push_back(parse_pause_stream_change(type, change));
             } else if (event_type == "transportChange") {
                 opt.transport_changes.push_back(parse_transport_change(type, change));
             } else {
