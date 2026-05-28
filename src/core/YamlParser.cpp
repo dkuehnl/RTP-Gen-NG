@@ -107,7 +107,7 @@ namespace yaml {
 
                 sc.trigger.type = type;
                 sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                sc.seq_to_jump = change["seqToJump"].as<int16_t>();
+                set_if_defined(change, "seqToJump", sc.seq_to_jump);
 
                 opt.sequence_changes.push_back(sc);
             }  else if (event_type == "pauseStream") {
@@ -115,7 +115,7 @@ namespace yaml {
 
                 ps.trigger.type = type;
                 ps.trigger.value = change["trigger"]["value"].as<uint64_t>();
-                ps.ms_to_pause = change["msToPause"].as<uint32_t>();
+                set_if_defined(change, "msToPause", ps.ms_to_pause);
 
                 opt.pause_stream.push_back(ps);
             } else if (event_type == "transportChange") {
