@@ -59,10 +59,27 @@ TEST_F(YamlParserTest, ParseStreamStartValues) {
     EXPECT_THAT(opts.ptime_btw_packet, 20);
 }
 
-TEST_F(YamlParserTest, ParseSsrcChangeEvent) {
+TEST_F(YamlParserTest, ParseTriggerTypeValue) {
+    EXPECT_NO_THROW({
+        auto opts = yaml::parse(complete_config);
+    });
+}
+
+TEST_F(YamlParserTest, SetEveryEventToTriggerType) {
     auto opts = yaml::parse(complete_config);
 
     EXPECT_THAT(opts.ssrc_changes[0].trigger.type, TriggerType::AfterPackets);
+    EXPECT_THAT(opts.timestamp_changes[0].trigger.type, TriggerType::AfterPackets);
+    EXPECT_THAT(opts.codec_changes[0].trigger.type, TriggerType::AfterPackets);
+    EXPECT_THAT(opts.sequence_changes[0].trigger.type, TriggerType::AfterPackets);
+    EXPECT_THAT(opts.pause_stream[0].trigger.type, TriggerType::AfterPackets);
+    EXPECT_THAT(opts.transport_changes[0].trigger.type, TriggerType::AfterPackets);
+
+}
+
+TEST_F(YamlParserTest, ParseSsrcChangeEvent) {
+    auto opts = yaml::parse(complete_config);
+
     EXPECT_THAT(opts.ssrc_changes[0].trigger.value, 100);
     EXPECT_THAT(opts.ssrc_changes[0].new_ssrc, 0x445566);
     EXPECT_FALSE(opts.ssrc_changes[0].continue_seq.value());
@@ -74,7 +91,6 @@ TEST_F(YamlParserTest, ParseSsrcChangeEvent) {
 TEST_F(YamlParserTest, ParseTimestampChangeEvent) {
     auto opts = yaml::parse(complete_config);
 
-    EXPECT_THAT(opts.timestamp_changes[0].trigger.type, TriggerType::AfterSeconds);
     EXPECT_THAT(opts.timestamp_changes[0].trigger.value, 20);
     EXPECT_THAT(opts.timestamp_changes[0].new_timestamp, 320);
     EXPECT_THAT(opts.timestamp_changes[0].steps_to_jump, 100);
@@ -85,7 +101,6 @@ TEST_F(YamlParserTest, ParseTimestampChangeEvent) {
 TEST_F(YamlParserTest, ParseCodecChangeEvent) {
     auto opts = yaml::parse(complete_config);
 
-    EXPECT_THAT(opts.codec_changes[0].trigger.type, TriggerType::AfterPackets);
     EXPECT_THAT(opts.codec_changes[0].trigger.value, 500);
     EXPECT_THAT(opts.codec_changes[0].new_codec, 12);
     EXPECT_THAT(opts.codec_changes[0].new_clockrate, 16000);
@@ -100,7 +115,6 @@ TEST_F(YamlParserTest, ParseCodecChangeEvent) {
 TEST_F(YamlParserTest, ParseSequenceChangeEvent) {
     auto opts = yaml::parse(complete_config);
 
-    EXPECT_THAT(opts.sequence_changes[0].trigger.type, TriggerType::AfterPackets);
     EXPECT_THAT(opts.sequence_changes[0].trigger.value, 500);
     EXPECT_THAT(opts.sequence_changes[0].seq_to_jump, 6000);
 }
@@ -108,7 +122,6 @@ TEST_F(YamlParserTest, ParseSequenceChangeEvent) {
 TEST_F(YamlParserTest, ParsePauseStreamEvent) {
     auto opts = yaml::parse(complete_config);
 
-    EXPECT_THAT(opts.pause_stream[0].trigger.type, TriggerType::AfterPackets);
     EXPECT_THAT(opts.pause_stream[0].trigger.value, 500);
     EXPECT_THAT(opts.pause_stream[0].ms_to_pause, 1000);
 }
@@ -116,7 +129,6 @@ TEST_F(YamlParserTest, ParsePauseStreamEvent) {
 TEST_F(YamlParserTest, ParseTransportChangeEvent) {
     auto opts = yaml::parse(complete_config);
 
-    EXPECT_THAT(opts.transport_changes[0].trigger.type, TriggerType::AfterSeconds);
     EXPECT_THAT(opts.transport_changes[0].trigger.value, 1000);
     EXPECT_THAT(opts.transport_changes[0].new_dest_ip, "192.168.178.2");
     EXPECT_THAT(opts.transport_changes[0].new_dest_port, 37000);

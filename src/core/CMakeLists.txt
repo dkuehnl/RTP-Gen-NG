@@ -6,6 +6,8 @@ add_library(core
         RandomGenerators.h
         YamlParser.cpp
         YamlParser.h
+        ScenarioEngine.cpp
+        ScenarioEngine.h
         #more .cpp-files placed here
 )
 

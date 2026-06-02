@@ -13,10 +13,10 @@ streamStartValues:
   startClockrate: 8000
   ptimeInPacket: 20
   ptimeBtwPacket: 20
+triggerMode: AfterPackets
 changes:
   - type: ssrcChange
     trigger:
-      type: AfterPackets
       value: 100
     newSsrc: 0x445566
     continueSeq: no
@@ -25,7 +25,6 @@ changes:
     timestampToContinue: 320
   - type: timestampChange
     trigger:
-      type: AfterSeconds
       value: 20
     stepsToJump: 100
     newTimestamp: 320
@@ -33,7 +32,6 @@ changes:
     seqToContinue: 30
   - type: codecChange
     trigger:
-      type: AfterPackets
       value: 500
     newCodec: 12
     newClockrate: 16000
@@ -45,17 +43,14 @@ changes:
     timestampToContinue: 26123
   - type: sequenceChange
     trigger:
-      type: AfterPackets
       value: 500
     seqToJump: 6000
   - type: pauseStream
     trigger:
-      type: AfterPackets
       value: 500
     msToPause: 1000
   - type: transportChange
     trigger:
-      type: AfterSeconds
       value: 1000
     newDestIp: 192.168.178.2
     newDestPort: 37000

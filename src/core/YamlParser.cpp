@@ -143,10 +143,11 @@ namespace {
             return;
         }
 
+        auto trigger_type = config["triggerMode"].as<std::string>();
+        auto type = get_trigger_type(trigger_type);
+
         for (const auto& change : config["changes"]) {
             auto event_type = change["type"].as<std::string>();
-            auto trigger_type = change["trigger"]["type"].as<std::string>();
-            auto type = get_trigger_type(trigger_type);
 
             if (event_type == "ssrcChange") {
                 opt.ssrc_changes.push_back(parse_ssrc_change(type, change));

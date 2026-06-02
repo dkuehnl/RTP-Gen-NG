@@ -25,6 +25,8 @@ add_executable(core_tests
         StreamOptionValidatorScenarioTest.cpp
         YamlParserTest.cpp
         IntegrationParserValidator.cpp
+        ScenarioEngineTest.cpp
+        StreamOptionsFixture.h
 )
 
 target_compile_definitions(core_tests
