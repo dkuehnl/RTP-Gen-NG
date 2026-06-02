@@ -29,8 +29,8 @@ namespace {
     }
 
     TriggerType get_trigger_type(const std::string& type) {
-        if (type == "AfterPackets") return TriggerType::AfterPackets;
-        if (type == "AfterSeconds") return TriggerType::AfterSeconds;
+        if (type == "Packets") return TriggerType::AfterPackets;
+        if (type == "Seconds") return TriggerType::AfterSeconds;
         throw YamlUnknownTriggerType("Unknown Trigger type: " + type);
     }
 
@@ -143,7 +143,7 @@ namespace {
             return;
         }
 
-        auto trigger_type = config["triggerMode"].as<std::string>();
+        auto trigger_type = config["triggerUnit"].as<std::string>();
         auto type = get_trigger_type(trigger_type);
 
         for (const auto& change : config["changes"]) {

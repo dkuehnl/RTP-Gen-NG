@@ -3,7 +3,7 @@ connectionDetails:
   destinationPort: 34000
   sourcePort: 35000
   useTCP: no
-triggerMode: AfterPackets
+triggerUnit: Packets
 changes:
   - type: invalidChange
     trigger:

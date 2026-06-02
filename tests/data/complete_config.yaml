@@ -13,7 +13,7 @@ streamStartValues:
   startClockrate: 8000
   ptimeInPacket: 20
   ptimeBtwPacket: 20
-triggerMode: AfterPackets
+triggerUnit: Packets
 changes:
   - type: ssrcChange
     trigger:
