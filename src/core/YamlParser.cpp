@@ -34,11 +34,10 @@ namespace {
         throw YamlUnknownTriggerType("Unknown Trigger type: " + type);
     }
 
-    SSRCChange parse_ssrc_change(const TriggerType& type, const YAML::Node& change) {
+    SSRCChange parse_ssrc_change(const YAML::Node& change) {
         SSRCChange sc;
 
-        sc.trigger.type = type;
-        sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        sc.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "newSsrc", sc.new_ssrc);
         set_if_defined(change, "continueSeq", sc.continue_seq);
         set_if_defined(change, "seqToContinue", sc.seq_to_continue);
@@ -48,11 +47,10 @@ namespace {
         return sc;
     }
 
-    TimestampChange parse_timestamp_change(const TriggerType& type, const YAML::Node& change) {
+    TimestampChange parse_timestamp_change(const YAML::Node& change) {
         TimestampChange tc;
 
-        tc.trigger.type = type;
-        tc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        tc.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "stepsToJump", tc.steps_to_jump);
         set_if_defined(change, "newTimestamp", tc.new_timestamp);
         set_if_defined(change, "continueSeq", tc.continue_seq);
@@ -61,11 +59,10 @@ namespace {
         return tc;
     }
 
-    CodecChange parse_codec_change(const TriggerType& type, const YAML::Node& change) {
+    CodecChange parse_codec_change(const YAML::Node& change) {
         CodecChange cc;
 
-        cc.trigger.type = type;
-        cc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        cc.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "newCodec", cc.new_codec);
         set_if_defined(change, "newClockrate", cc.new_clockrate);
         set_if_defined(change, "continueSsrc", cc.continue_ssrc);
@@ -78,31 +75,28 @@ namespace {
         return cc;
     }
 
-    SequenceChange parse_sequence_change(const TriggerType& type, const YAML::Node& change) {
+    SequenceChange parse_sequence_change(const YAML::Node& change) {
         SequenceChange sc;
 
-        sc.trigger.type = type;
-        sc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        sc.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "seqToJump", sc.seq_to_jump);
 
         return sc;
     }
 
-    PauseStream parse_pause_stream_change(const TriggerType& type, const YAML::Node& change) {
+    PauseStream parse_pause_stream_change(const YAML::Node& change) {
         PauseStream ps;
 
-        ps.trigger.type = type;
-        ps.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        ps.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "msToPause", ps.ms_to_pause);
 
         return ps;
     }
 
-    TransportChange parse_transport_change(const TriggerType& type, const YAML::Node& change) {
+    TransportChange parse_transport_change(const YAML::Node& change) {
         TransportChange tc;
 
-        tc.trigger.type = type;
-        tc.trigger.value = change["trigger"]["value"].as<uint64_t>();
+        tc.trigger_value = change["trigger"]["value"].as<uint64_t>();
         set_if_defined(change, "newDestIp", tc.new_dest_ip);
         set_if_defined(change, "newDestPort", tc.new_dest_port);
         set_if_defined(change, "useRandomNewSourcePort", tc.use_random_new_source_port);
@@ -144,23 +138,23 @@ namespace {
         }
 
         auto trigger_type = config["triggerUnit"].as<std::string>();
-        auto type = get_trigger_type(trigger_type);
+        opt.trigger_type = get_trigger_type(trigger_type);
 
         for (const auto& change : config["changes"]) {
             auto event_type = change["type"].as<std::string>();
 
             if (event_type == "ssrcChange") {
-                opt.ssrc_changes.push_back(parse_ssrc_change(type, change));
+                opt.ssrc_changes.push_back(parse_ssrc_change(change));
             } else if (event_type == "timestampChange") {
-                opt.timestamp_changes.push_back(parse_timestamp_change(type, change));
+                opt.timestamp_changes.push_back(parse_timestamp_change(change));
             } else if (event_type == "codecChange") {
-                opt.codec_changes.push_back(parse_codec_change(type, change));
+                opt.codec_changes.push_back(parse_codec_change(change));
             } else if (event_type == "sequenceChange") {
-                opt.sequence_changes.push_back(parse_sequence_change(type, change));
+                opt.sequence_changes.push_back(parse_sequence_change(change));
             }  else if (event_type == "pauseStream") {
-                opt.pause_stream.push_back(parse_pause_stream_change(type, change));
+                opt.pause_stream.push_back(parse_pause_stream_change(change));
             } else if (event_type == "transportChange") {
-                opt.transport_changes.push_back(parse_transport_change(type, change));
+                opt.transport_changes.push_back(parse_transport_change(change));
             } else {
                 throw YamlUnknownChangeEvent("Unknown Change-Event: " + event_type);
             }

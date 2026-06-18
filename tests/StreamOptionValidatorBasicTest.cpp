@@ -82,3 +82,6 @@ TEST_F(SoDefaultsTest, SetDefaultTimestampStepSize) {
     EXPECT_EQ(empty_opts.timestamp_step_size.value(), 160);
 }
 
+TEST_F(SoDefaultsTest, SetDefaultTriggerType) {
+    EXPECT_EQ(empty_opts.trigger_type.value(), TriggerType::AfterPackets);
+}

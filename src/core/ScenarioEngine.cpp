@@ -15,7 +15,7 @@ std::deque<T> to_deque(const std::vector<T>& vec) {
 template<typename T>
 void sort_by_trigger(std::deque<T>& deque) {
     std::sort(deque.begin(), deque.end(),
-        [](const T& a, const T& b) { return a.trigger.value < b.trigger.value; }
+        [](const T& a, const T& b) { return a.trigger_value < b.trigger_value; }
     );
 }
 
@@ -26,6 +26,8 @@ ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
 const StreamState& ScenarioEngine::tick(uint64_t delta_ms) {
     m_state.current_seq++;
     m_state.current_timestamp += m_state.current_timestamp_step_size;
+    m_state.packet_count++;
+    m_state.elapsed_ms += delta_ms;
     return m_state;
 }
 

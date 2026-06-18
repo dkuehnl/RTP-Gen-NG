@@ -29,7 +29,7 @@ struct Trigger {
  * continue_timestamp defaults to true if absent; if false and timestamp_to_continue is empty, a random timestamp is generated into timestamp_to_continue.
  */
 struct SSRCChange {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<uint32_t> new_ssrc{};                 ///< New SSRC; randomized if absent.
 
     std::optional<bool>  continue_seq{};                ///< If true (default), seq continues from current value.
@@ -47,7 +47,7 @@ struct SSRCChange {
  * continue_seq defaults to true if absent; if false and seq_to_continue is empty, a random seq is generated into seq_to_continue.
  */
 struct TimestampChange {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<uint32_t> new_timestamp{};    ///< Jump to absolute timestamp value.
     std::optional<int16_t> steps_to_jump{};     ///< Relative jump in timestamp steps (negative = backwards).
     //TODO: Step-Size ändern?
@@ -66,7 +66,7 @@ struct TimestampChange {
  * continue_timestamp defaults to false; if false and timestamp_to_continue is absent, a random timestamp is generated into timestamp_to_continue.
  */
 struct CodecChange {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<uint8_t> new_codec{};
     std::optional<uint16_t> new_clockrate{};
 
@@ -86,7 +86,7 @@ struct CodecChange {
  * Dropped by check_configuration() if trigger.value == 0 or seq_to_jump is absent.
  */
 struct SequenceChange {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<int16_t> seq_to_jump{};   ///< Relative jump (negative = backwards).
 };
 
@@ -96,7 +96,7 @@ struct SequenceChange {
  * Dropped by check_configuration() if trigger.value == 0 or ms_to_pause is absent.
  */
 struct PauseStream {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<uint32_t> ms_to_pause{};
 };
 
@@ -108,7 +108,7 @@ struct PauseStream {
  * use_random_new_source_port defaults to false; if true, new_source_port is ignored.
  */
 struct TransportChange {
-    Trigger trigger{};
+    uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
     std::optional<std::string> new_dest_ip{};
     std::optional<uint16_t> new_dest_port{};
 
@@ -136,22 +136,24 @@ struct StreamOptions {
     std::optional<uint8_t> ptime_btw_packet{};              ///< Actual send interval between packets [ms]. Default: 20.
 
     std::optional<uint32_t> start_ssrc{};                   ///< Default: 0x112233.
-    std::vector<SSRCChange> ssrc_changes{};                 ///< Empty by default
 
     std::optional<uint32_t> start_timestamp{};              ///< Default: 0.
     std::optional<uint32_t> timestamp_step_size{};          ///< Default: (clockrate * ptime_in_packet) / 1000.
-    std::vector<TimestampChange> timestamp_changes{};       ///< Empty by default
 
     std::optional<uint8_t> start_codec{};                   ///< Payload type. Default: 8 (PCMA).
     std::optional<uint16_t> start_clockrate{};              ///< Default: 8000 Hz.
-    std::vector<CodecChange> codec_changes{};               ///< Empty by default
 
     std::optional<uint16_t> start_seq{};                    ///< Default: 0.
     std::optional<uint16_t> seq_steps{};                    ///< Sequence-Increment per packet. Default: 1.
-    std::vector<SequenceChange> sequence_changes{};         ///< Empty by default
 
+    std::optional<TriggerType> trigger_type{};                             ///< Whether to trigger after a packet count or elapsed seconds. Default: TriggerType::AfterPackets
+    std::vector<SSRCChange> ssrc_changes{};                 ///< Empty by default
+    std::vector<TimestampChange> timestamp_changes{};       ///< Empty by default
+    std::vector<CodecChange> codec_changes{};               ///< Empty by default
+    std::vector<SequenceChange> sequence_changes{};         ///< Empty by default
     std::vector<PauseStream> pause_stream{};                ///< Empty by default
     std::vector<TransportChange> transport_changes{};       ///< Empty by default
+
 };
 
 #endif //RTPGEN_NG_STREAMOPTIONS_H

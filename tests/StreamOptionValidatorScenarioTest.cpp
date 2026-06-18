@@ -21,6 +21,7 @@ StreamOptions get_basic_opts() {
     opts.start_clockrate = 8000;
     opts.start_seq = 0;
     opts.seq_steps = 1;
+    opts.trigger_type = TriggerType::AfterPackets;
 
     return opts;
 }
@@ -34,20 +35,10 @@ class SoSsrcScenarioTest : public ::testing::Test {
 protected:
 };
 
-TEST_F(SoSsrcScenarioTest, EmptyTriggerTimeGeneratesWarning) {
-    auto opts = get_basic_opts();
-    opts.ssrc_changes.push_back({
-        .trigger = { .type = TriggerType::AfterPackets }
-    });
-
-    auto result = sov::check_configuration(opts);
-    EXPECT_THAT(result.warnings, ::testing::Contains("No trigger-value for SSRC-change set, Event will be ignored."));
-}
-
 TEST_F(SoSsrcScenarioTest, EmptyNewSSRCGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = { TriggerType::AfterPackets, 100 }
+        .trigger_value = 100
     });
 
     auto result = sov::check_configuration(opts);
@@ -57,7 +48,7 @@ TEST_F(SoSsrcScenarioTest, EmptyNewSSRCGeneratesWarning) {
 TEST_F(SoSsrcScenarioTest, RemoveEventIfInvalid) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = { TriggerType::AfterPackets, 100}
+        .trigger_value = 100
     });
 
     auto result = sov::check_configuration(opts);
@@ -67,11 +58,11 @@ TEST_F(SoSsrcScenarioTest, RemoveEventIfInvalid) {
 TEST_F(SoSsrcScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = { TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_ssrc = 0x334455
     });
     opts.ssrc_changes.push_back({
-        .trigger = {}});
+        .trigger_value = {}});
 
     auto result = sov::check_configuration(opts);
     ASSERT_EQ(opts.ssrc_changes.size(), 1);
@@ -80,7 +71,7 @@ TEST_F(SoSsrcScenarioTest, RemoveOnlyInvalid) {
 TEST_F(SoSsrcScenarioTest, SetDefaultToContinueSeq) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_ssrc = 0x334455,
     });
 
@@ -92,7 +83,7 @@ TEST_F(SoSsrcScenarioTest, SetDefaultToContinueSeq) {
 TEST_F(SoSsrcScenarioTest, SetDefaultToContinueTimestamp) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_ssrc = 0x334455,
     });
 
@@ -104,7 +95,7 @@ TEST_F(SoSsrcScenarioTest, SetDefaultToContinueTimestamp) {
 TEST_F(SoSsrcScenarioTest, SetInfoIfSeqNotContinue) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_ssrc = 0x334455,
         .continue_seq = false
     });
@@ -116,7 +107,7 @@ TEST_F(SoSsrcScenarioTest, SetInfoIfSeqNotContinue) {
 TEST_F(SoSsrcScenarioTest, GenerateRandomSeq) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_ssrc = 0x334455,
         .continue_seq = false
     });
@@ -128,8 +119,8 @@ TEST_F(SoSsrcScenarioTest, GenerateRandomSeq) {
 TEST_F(SoSsrcScenarioTest, SetInfoIfTimestampNotContinue) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
-        .new_ssrc = 0.334455,
+        .trigger_value = 100,
+        .new_ssrc = 0x334455,
         .continue_timestamp = false
     });
 
@@ -140,8 +131,8 @@ TEST_F(SoSsrcScenarioTest, SetInfoIfTimestampNotContinue) {
 TEST_F(SoSsrcScenarioTest, GenerateRandomTimestamp) {
     auto opts = get_basic_opts();
     opts.ssrc_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
-        .new_ssrc = 0.334455,
+        .trigger_value = 100,
+        .new_ssrc = 0x334455,
         .continue_timestamp = false
     });
 
@@ -161,7 +152,7 @@ protected:
 TEST_F(SoTimestampScenarioTest, EmptyTriggerTimeGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger{}
+        .trigger_value = {}
     });
 
     auto result = sov::check_configuration(opts);
@@ -171,7 +162,7 @@ TEST_F(SoTimestampScenarioTest, EmptyTriggerTimeGeneratesWarning) {
 TEST_F(SoTimestampScenarioTest, NoSettingGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -181,7 +172,7 @@ TEST_F(SoTimestampScenarioTest, NoSettingGeneratesWarning) {
 TEST_F(SoTimestampScenarioTest, NoWarningIfOneIsSet) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_timestamp = 4000
     });
 
@@ -192,11 +183,11 @@ TEST_F(SoTimestampScenarioTest, NoWarningIfOneIsSet) {
 TEST_F(SoTimestampScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .steps_to_jump = 30
     });
     opts.timestamp_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -206,7 +197,7 @@ TEST_F(SoTimestampScenarioTest, RemoveOnlyInvalid) {
 TEST_F(SoTimestampScenarioTest, SetDefaultToContinueSeq) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_timestamp = 5000,
     });
 
@@ -218,7 +209,7 @@ TEST_F(SoTimestampScenarioTest, SetDefaultToContinueSeq) {
 TEST_F(SoTimestampScenarioTest, SetInfoIfSeqNotContinue) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_timestamp = 5000,
         .continue_seq = false
     });
@@ -230,7 +221,7 @@ TEST_F(SoTimestampScenarioTest, SetInfoIfSeqNotContinue) {
 TEST_F(SoTimestampScenarioTest, GenerateRandomSeq) {
     auto opts = get_basic_opts();
     opts.timestamp_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_timestamp = 5000,
         .continue_seq = false
     });
@@ -251,7 +242,7 @@ protected:
 TEST_F(SoCodecScenarioTest, EmptyTriggerTimeGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets}
+        .trigger_value = {}
     });
 
     auto result = sov::check_configuration(opts);
@@ -261,7 +252,7 @@ TEST_F(SoCodecScenarioTest, EmptyTriggerTimeGeneratesWarning) {
 TEST_F(SoCodecScenarioTest, NoSettingGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -271,7 +262,7 @@ TEST_F(SoCodecScenarioTest, NoSettingGeneratesWarning) {
 TEST_F(SoCodecScenarioTest, NoWarningIfConfigSet) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 8,
         .ssrc_to_continue = 0x223344
     });
@@ -283,12 +274,12 @@ TEST_F(SoCodecScenarioTest, NoWarningIfConfigSet) {
 TEST_F(SoCodecScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 8,
         .ssrc_to_continue = 0x223344
     });
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -298,7 +289,7 @@ TEST_F(SoCodecScenarioTest, RemoveOnlyInvalid) {
 TEST_F(SoCodecScenarioTest, SetDefaultToContinueSsrc) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
     });
 
@@ -310,7 +301,7 @@ TEST_F(SoCodecScenarioTest, SetDefaultToContinueSsrc) {
 TEST_F(SoCodecScenarioTest, SetWarningIfSsrcContinues) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
         .continue_ssrc = true
     });
@@ -322,7 +313,7 @@ TEST_F(SoCodecScenarioTest, SetWarningIfSsrcContinues) {
 TEST_F(SoCodecScenarioTest, SetDefaultToContinueSeq) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
     });
 
@@ -334,7 +325,7 @@ TEST_F(SoCodecScenarioTest, SetDefaultToContinueSeq) {
 TEST_F(SoCodecScenarioTest, SetInfoIfSeqContinues) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
         .continue_seq = true
     });
@@ -346,7 +337,7 @@ TEST_F(SoCodecScenarioTest, SetInfoIfSeqContinues) {
 TEST_F(SoCodecScenarioTest, SetDefaultToContinueTimestamp) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
     });
 
@@ -358,7 +349,7 @@ TEST_F(SoCodecScenarioTest, SetDefaultToContinueTimestamp) {
 TEST_F(SoCodecScenarioTest, SetInfoIfTimestampContinues) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger = {TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 5,
         .continue_timestamp = true
     });
@@ -370,7 +361,7 @@ TEST_F(SoCodecScenarioTest, SetInfoIfTimestampContinues) {
 TEST_F(SoCodecScenarioTest, GenerateWarningIfSsrcNotConinuedButNoneProvided) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 9,
         .continue_ssrc = false,
     });
@@ -382,7 +373,7 @@ TEST_F(SoCodecScenarioTest, GenerateWarningIfSsrcNotConinuedButNoneProvided) {
 TEST_F(SoCodecScenarioTest, GenerateRandomSSRC) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 9,
         .continue_ssrc = false,
     });
@@ -394,7 +385,7 @@ TEST_F(SoCodecScenarioTest, GenerateRandomSSRC) {
 TEST_F(SoCodecScenarioTest, GenerateRandomSeq) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 9
     });
 
@@ -405,7 +396,7 @@ TEST_F(SoCodecScenarioTest, GenerateRandomSeq) {
 TEST_F(SoCodecScenarioTest, GenerateRandomTimestamp) {
     auto opts = get_basic_opts();
     opts.codec_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_codec = 9
     });
 
@@ -425,7 +416,7 @@ protected:
 TEST_F(SoSeqScenarioTest, EmptyTriggerTimeGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.sequence_changes.push_back({
-        .trigger{TriggerType::AfterPackets}
+        .trigger_value = {},
     });
 
     auto result = sov::check_configuration(opts);
@@ -435,7 +426,7 @@ TEST_F(SoSeqScenarioTest, EmptyTriggerTimeGeneratesWarning) {
 TEST_F(SoSeqScenarioTest, NoSettingGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.sequence_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -445,7 +436,7 @@ TEST_F(SoSeqScenarioTest, NoSettingGeneratesWarning) {
 TEST_F(SoSeqScenarioTest, NoWarningIfConfigSet) {
     auto opts = get_basic_opts();
     opts.sequence_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .seq_to_jump = 100
     });
 
@@ -456,11 +447,11 @@ TEST_F(SoSeqScenarioTest, NoWarningIfConfigSet) {
 TEST_F(SoSeqScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.sequence_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .seq_to_jump = -100
     });
     opts.sequence_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -479,7 +470,7 @@ protected:
 TEST_F(SoPauseScenarioTest, EmptyTriggerTimeGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.pause_stream.push_back({
-        .trigger{TriggerType::AfterPackets}
+        .trigger_value = {},
     });
 
     auto result = sov::check_configuration(opts);
@@ -489,7 +480,7 @@ TEST_F(SoPauseScenarioTest, EmptyTriggerTimeGeneratesWarning) {
 TEST_F(SoPauseScenarioTest, NoSettingGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.pause_stream.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -499,7 +490,7 @@ TEST_F(SoPauseScenarioTest, NoSettingGeneratesWarning) {
 TEST_F(SoPauseScenarioTest, NoWarningIfConfigSet) {
     auto opts = get_basic_opts();
     opts.pause_stream.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .ms_to_pause = 100
     });
 
@@ -510,11 +501,11 @@ TEST_F(SoPauseScenarioTest, NoWarningIfConfigSet) {
 TEST_F(SoPauseScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.pause_stream.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .ms_to_pause = -100
     });
     opts.pause_stream.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -533,7 +524,7 @@ protected:
 TEST_F(SoTransportScenarioTest, EmptyTriggerTimeGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets}
+        .trigger_value = {}
     });
 
     auto result = sov::check_configuration(opts);
@@ -543,7 +534,7 @@ TEST_F(SoTransportScenarioTest, EmptyTriggerTimeGeneratesWarning) {
 TEST_F(SoTransportScenarioTest, NoSettingGeneratesWarning) {
     auto opts = get_basic_opts();
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -553,7 +544,7 @@ TEST_F(SoTransportScenarioTest, NoSettingGeneratesWarning) {
 TEST_F(SoTransportScenarioTest, SetDefaultToUseRandomSourcePort) {
     auto opts = get_basic_opts();
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);
@@ -564,7 +555,7 @@ TEST_F(SoTransportScenarioTest, SetDefaultToUseRandomSourcePort) {
 TEST_F(SoTransportScenarioTest, SettingRandomSourceGetsNoWarning) {
     auto opts = get_basic_opts();
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .use_random_new_source_port = true
     });
 
@@ -575,11 +566,11 @@ TEST_F(SoTransportScenarioTest, SettingRandomSourceGetsNoWarning) {
 TEST_F(SoTransportScenarioTest, RemoveOnlyInvalid) {
     auto opts = get_basic_opts();
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100},
+        .trigger_value = 100,
         .new_dest_ip = "192.168.178.1"
     });
     opts.transport_changes.push_back({
-        .trigger{TriggerType::AfterPackets, 100}
+        .trigger_value = 100,
     });
 
     auto result = sov::check_configuration(opts);

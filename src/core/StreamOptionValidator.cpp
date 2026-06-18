@@ -11,7 +11,7 @@ namespace {
             return;
 
         for (auto& entry : ssrc_changes) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for SSRC-change set, Event will be ignored.");
                 continue;
             }
@@ -38,7 +38,7 @@ namespace {
         }
 
         std::erase_if(ssrc_changes, [](const SSRCChange& e) {
-            return e.trigger.value == 0 || !e.new_ssrc.has_value();
+            return e.trigger_value == 0 || !e.new_ssrc.has_value();
         });
 
     }
@@ -48,7 +48,7 @@ namespace {
             return;
 
         for (auto& entry : timestamp_changes) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for Timestamp-change set, Event will be ignored.");
                 continue;
             }
@@ -68,7 +68,7 @@ namespace {
         }
 
         std::erase_if(timestamp_changes, [](const TimestampChange& e) {
-            return e.trigger.value == 0 || (!e.new_timestamp.has_value() && !e.steps_to_jump.has_value());
+            return e.trigger_value == 0 || (!e.new_timestamp.has_value() && !e.steps_to_jump.has_value());
         });
     }
 
@@ -77,7 +77,7 @@ namespace {
             return;
 
         for (auto& entry : codec_changes) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for Codec-change set, Event will be ignored.");
                 continue;
             }
@@ -118,7 +118,7 @@ namespace {
         }
 
         std::erase_if(codec_changes, [](const CodecChange& e) {
-            return e.trigger.value == 0 || (!e.new_codec.has_value() && !e.new_clockrate.has_value());
+            return e.trigger_value == 0 || (!e.new_codec.has_value() && !e.new_clockrate.has_value());
         });
     }
 
@@ -127,7 +127,7 @@ namespace {
             return;
 
         for (const auto& entry : sequence_changes) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for Sequence-change set, Event will be ignored.");
                 continue;
             }
@@ -138,7 +138,7 @@ namespace {
         }
 
         std::erase_if(sequence_changes, [](const SequenceChange& e) {
-            return e.trigger.value == 0 || !e.seq_to_jump.has_value();
+            return e.trigger_value == 0 || !e.seq_to_jump.has_value();
         });
     }
 
@@ -147,7 +147,7 @@ namespace {
             return;
 
         for (const auto& entry : pause_stream) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for Pause-change set, Event will be ignored.");
                 continue;
             }
@@ -158,7 +158,7 @@ namespace {
         }
 
         std::erase_if(pause_stream, [](const PauseStream& e) {
-            return e.trigger.value == 0 || !e.ms_to_pause.has_value();
+            return e.trigger_value == 0 || !e.ms_to_pause.has_value();
         });
     }
 
@@ -167,7 +167,7 @@ namespace {
             return;
 
         for (auto& entry : transport_changes) {
-            if (entry.trigger.value == 0) {
+            if (entry.trigger_value == 0) {
                 result.warnings.emplace_back("No trigger-value for Transport-change set, Event will be ignored.");
                 continue;
             }
@@ -186,7 +186,7 @@ namespace {
         }
 
         std::erase_if(transport_changes, [](const TransportChange& e) {
-            return e.trigger.value == 0 || (
+            return e.trigger_value == 0 || (
                 !e.new_dest_ip.has_value() &&
                 !e.new_dest_port.has_value() &&
                 !e.new_source_port.has_value() &&
@@ -230,6 +230,7 @@ namespace {
         if (!opts.start_seq.has_value()) opts.start_seq = 0;
         if (!opts.seq_steps.has_value()) opts.seq_steps = 1;
         if (!opts.start_clockrate.has_value()) opts.start_clockrate = 8000;
+        if (!opts.trigger_type.has_value()) opts.trigger_type = TriggerType::AfterPackets;
 
         if (!opts.timestamp_step_size.has_value()) {
             opts.timestamp_step_size = (opts.start_clockrate.value() * opts.ptime_in_packet.value()) / 1000;

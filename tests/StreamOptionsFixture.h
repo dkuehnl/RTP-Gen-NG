@@ -34,10 +34,11 @@ inline StreamOptions create_full_stream_options() {
     opts.seq_steps = 1;
 
     // ========== CHANGE EVENTS ==========
+    opts.trigger_type = TriggerType::AfterPackets;
 
     // SSRCChange: after 100 packets
     SSRCChange ssrc_evt;
-    ssrc_evt.trigger = {TriggerType::AfterPackets, 100};
+    ssrc_evt.trigger_value = 100;
     ssrc_evt.new_ssrc = 0xCAFEBABE;
     ssrc_evt.continue_seq = true;        // Seq continues
     ssrc_evt.continue_timestamp = false; // Timestamp restarts
@@ -46,13 +47,13 @@ inline StreamOptions create_full_stream_options() {
 
     // SequenceChange: after 50 packets, jump -10 backwards
     SequenceChange seq_evt;
-    seq_evt.trigger = {TriggerType::AfterPackets, 50};
+    seq_evt.trigger_value = 50;
     seq_evt.seq_to_jump = -10;
     opts.sequence_changes.push_back(seq_evt);
 
     // TimestampChange: after 5000ms, jump to absolute 10000
     TimestampChange ts_evt;
-    ts_evt.trigger = {TriggerType::AfterSeconds, 5000};
+    ts_evt.trigger_value = 5000;
     ts_evt.new_timestamp = 10000;
     ts_evt.continue_seq = false;  // Seq also changes
     ts_evt.seq_to_continue = 100;
@@ -60,7 +61,7 @@ inline StreamOptions create_full_stream_options() {
 
     // CodecChange: after 200 packets, switch to codec 0 (PCMU) with 8kHz
     CodecChange codec_evt;
-    codec_evt.trigger = {TriggerType::AfterPackets, 200};
+    codec_evt.trigger_value = 200;
     codec_evt.new_codec = 0;       // PCMU
     codec_evt.new_clockrate = 8000;
     codec_evt.continue_ssrc = false;        // SSRC changes
@@ -73,13 +74,13 @@ inline StreamOptions create_full_stream_options() {
 
     // PauseStream: after 3 seconds, pause for 500ms
     PauseStream pause_evt;
-    pause_evt.trigger = {TriggerType::AfterSeconds, 3000};
+    pause_evt.trigger_value = 3000;
     pause_evt.ms_to_pause = 500;
     opts.pause_stream.push_back(pause_evt);
 
     // TransportChange: after 150 packets, redirect to different host/port
     TransportChange transport_evt;
-    transport_evt.trigger = {TriggerType::AfterPackets, 150};
+    transport_evt.trigger_value = 150;
     transport_evt.new_dest_ip = "192.168.1.200";
     transport_evt.new_dest_port = 6005;
     transport_evt.use_random_new_source_port = false;
@@ -122,13 +123,14 @@ inline StreamOptions create_minimal_stream_options() {
 inline StreamOptions create_two_ssrc_changes() {
     auto opts = create_minimal_stream_options();
 
+    opts.trigger_type = TriggerType::AfterPackets;
     SSRCChange evt1;
-    evt1.trigger = {TriggerType::AfterPackets, 10};
+    evt1.trigger_value = 10;
     evt1.new_ssrc = 0x11111111;
     opts.ssrc_changes.push_back(evt1);
 
     SSRCChange evt2;
-    evt2.trigger = {TriggerType::AfterPackets, 50};
+    evt2.trigger_value = 50;
     evt2.new_ssrc = 0x22222222;
     opts.ssrc_changes.push_back(evt2);
 
@@ -140,16 +142,17 @@ inline StreamOptions create_two_ssrc_changes() {
  */
 inline StreamOptions create_time_based_triggers() {
     auto opts = create_minimal_stream_options();
+    opts.trigger_type = TriggerType::AfterSeconds;
 
     // Pause after 1 second
     PauseStream pause_evt;
-    pause_evt.trigger = {TriggerType::AfterSeconds, 1000};
+    pause_evt.trigger_value = 1000;
     pause_evt.ms_to_pause = 200;
     opts.pause_stream.push_back(pause_evt);
 
     // Codec change after 2 seconds
     CodecChange codec_evt;
-    codec_evt.trigger = {TriggerType::AfterSeconds, 2000};
+    codec_evt.trigger_value = 2000;
     codec_evt.new_codec = 9;
     codec_evt.new_clockrate = 8000;
     opts.codec_changes.push_back(codec_evt);
