@@ -7,6 +7,7 @@
 #include <deque>
 #include <string>
 
+
 #include "StreamOptions.h"
 
 struct StreamState {
@@ -30,6 +31,12 @@ public:
     explicit ScenarioEngine(const StreamOptions& opts);
     [[nodiscard]] const StreamState& get_state() const;
 
+    /**
+     * Only for testing sort- and copy-mechanism
+     * @return deque of SSRC Changes sorted and copied
+     */
+    const std::deque<SSRCChange>& get_ssrc_changes_for() const { return m_ssrc_changes; };
+
 private:
     StreamState m_state{};
     StreamState m_prev_state{};
@@ -42,7 +49,7 @@ private:
     std::deque<PauseStream> m_pause_stream{};
     std::deque<TransportChange> m_transport_changes{};
 
-    void extract_inital_state_values(const StreamOptions& opts);
+    void extract_initial_state_values(const StreamOptions& opts);
 };
 
 

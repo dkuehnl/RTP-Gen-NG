@@ -119,7 +119,7 @@ inline StreamOptions create_minimal_stream_options() {
 /**
  * @brief Creates a StreamOptions with only SSRC changes for focused testing.
  */
-inline StreamOptions create_ssrc_changes_only() {
+inline StreamOptions create_two_ssrc_changes() {
     auto opts = create_minimal_stream_options();
 
     SSRCChange evt1;

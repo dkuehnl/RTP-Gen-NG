@@ -25,9 +25,28 @@ TEST_F(ScenarioEngineTest, FillStartValuesIntoStreamState) {
     EXPECT_EQ(state.current_codec, opts.start_codec.value());
     EXPECT_EQ(state.current_clockrate, opts.start_clockrate.value());
 }
-/*
-TEST_F(ScenarioEngineTest, FillChangeEventIntoDeque) {
-    ScenarioEngine engine(m_opts);
 
-    EXPECT_EQ(engine.m_ssrc_changes.size(), 1);
-}*/
+//Because the function of the following test is made via template, it
+//works exactly the same for every member of the same type. Therefore, only
+//one member is tested.
+TEST_F(ScenarioEngineTest, CopyVectorInDeque) {
+    auto opts = create_full_stream_options();
+    ScenarioEngine engine(opts);
+
+    const auto& ssrc_deque = engine.get_ssrc_changes_for();
+    EXPECT_EQ(ssrc_deque.size(), 1);
+}
+
+//Because the function of the following test is made via template, it
+//works exactly the same for every member of the same type. Therefore, only
+//one member is tested.
+TEST_F(ScenarioEngineTest, TwoEventsInOneDequeAreSorted) {
+    auto opts = create_two_ssrc_changes();
+    opts.ssrc_changes[0].trigger.value = 10;
+    opts.ssrc_changes[1].trigger.value = 5;
+
+    ScenarioEngine engine(opts);
+
+    const auto& ssrc_deque = engine.get_ssrc_changes_for();
+    EXPECT_EQ(ssrc_deque.front().trigger.value, 5);
+}

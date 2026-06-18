@@ -4,12 +4,39 @@
 
 #include "ScenarioEngine.h"
 
-ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
-    extract_inital_state_values(opts);
+#include <stdexcept>
+#include <algorithm>
 
+template<typename T>
+std::deque<T> to_deque(const std::vector<T>& vec) {
+    return std::deque<T>(vec.begin(), vec.end());
 }
 
-void ScenarioEngine::extract_inital_state_values(const StreamOptions& opts) {
+template<typename T>
+void sort_by_trigger(std::deque<T>& deque) {
+    std::sort(deque.begin(), deque.end(),
+        [](const T& a, const T& b) { return a.trigger.value < b.trigger.value; }
+    );
+}
+
+ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
+    extract_initial_state_values(opts);
+
+    m_ssrc_changes = to_deque(opts.ssrc_changes);
+    sort_by_trigger(m_ssrc_changes);
+    m_timestamp_changes = to_deque(opts.timestamp_changes);
+    sort_by_trigger(m_timestamp_changes);
+    m_codec_change = to_deque(opts.codec_changes);
+    sort_by_trigger(m_codec_change);
+    m_sequence_change = to_deque(opts.sequence_changes);
+    sort_by_trigger(m_sequence_change);
+    m_pause_stream = to_deque(opts.pause_stream);
+    sort_by_trigger(m_pause_stream);
+    m_transport_changes = to_deque(opts.transport_changes);
+    sort_by_trigger(m_transport_changes); 
+}
+
+void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_ssrc = opts.start_ssrc.value();
     m_state.current_seq = opts.start_seq.value();
     m_state.current_timestamp = opts.start_timestamp.value();
