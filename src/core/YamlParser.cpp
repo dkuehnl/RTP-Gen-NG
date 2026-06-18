@@ -137,8 +137,12 @@ namespace {
             return;
         }
 
-        auto trigger_type = config["triggerUnit"].as<std::string>();
-        opt.trigger_type = get_trigger_type(trigger_type);
+        if (!config["triggerUnit"].IsDefined()) {
+            opt.trigger_type = TriggerType::AfterPackets;
+        } else {
+            auto trigger_type = config["triggerUnit"].as<std::string>();
+            opt.trigger_type = get_trigger_type(trigger_type);
+        }
 
         for (const auto& change : config["changes"]) {
             auto event_type = change["type"].as<std::string>();

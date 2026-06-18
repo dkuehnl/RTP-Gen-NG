@@ -230,7 +230,7 @@ namespace {
         if (!opts.start_seq.has_value()) opts.start_seq = 0;
         if (!opts.seq_steps.has_value()) opts.seq_steps = 1;
         if (!opts.start_clockrate.has_value()) opts.start_clockrate = 8000;
-        if (!opts.trigger_type.has_value()) opts.trigger_type = TriggerType::AfterPackets;
+        if (!opts.trigger_type.has_value()) opts.trigger_type = TriggerType::None;
 
         if (!opts.timestamp_step_size.has_value()) {
             opts.timestamp_step_size = (opts.start_clockrate.value() * opts.ptime_in_packet.value()) / 1000;

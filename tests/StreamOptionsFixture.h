@@ -113,7 +113,7 @@ inline StreamOptions create_minimal_stream_options() {
     opts.start_clockrate = 8000;
     opts.start_seq = 42;
     opts.seq_steps = 1;
-
+    opts.trigger_type = TriggerType::AfterSeconds;
     return opts;
 }
 

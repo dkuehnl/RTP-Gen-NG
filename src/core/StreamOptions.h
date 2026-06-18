@@ -9,17 +9,7 @@
 #include <optional>
 
 
-enum class TriggerType { AfterPackets, AfterSeconds };
-
-/**
- * @brief Defines the trigger condition for a stream change-event
- * @param type Type of trigger (AfterPackets or AfterSeconds)
- * @param value Threshold value (packet or seconds)
- */
-struct Trigger {
-    TriggerType type{};     ///< Whether to trigger after a packet count or elapsed seconds.
-    uint64_t value{};       ///< Threshold value (packet count or seconds).
-};
+enum class TriggerType { None, AfterPackets, AfterSeconds };
 
 /**
  * @brief Describes an SSRC substitution event.
@@ -146,7 +136,7 @@ struct StreamOptions {
     std::optional<uint16_t> start_seq{};                    ///< Default: 0.
     std::optional<uint16_t> seq_steps{};                    ///< Sequence-Increment per packet. Default: 1.
 
-    std::optional<TriggerType> trigger_type{};                             ///< Whether to trigger after a packet count or elapsed seconds. Default: TriggerType::AfterPackets
+    std::optional<TriggerType> trigger_type{};              ///< Whether to trigger after a packet count or elapsed seconds. Default with Events: AfterPackets otherwise: None
     std::vector<SSRCChange> ssrc_changes{};                 ///< Empty by default
     std::vector<TimestampChange> timestamp_changes{};       ///< Empty by default
     std::vector<CodecChange> codec_changes{};               ///< Empty by default

@@ -16,6 +16,7 @@ protected:
     std::string no_event_config = std::string(TEST_DATA_DIR) + "no_event_config.yaml";
     std::string minimal_config = std::string(TEST_DATA_DIR) + "minimal_config.yaml";
     std::string unknown_change_event = std::string(TEST_DATA_DIR) + "unknown_change_event.yaml";
+    std::string change_without_trigger_type = std::string(TEST_DATA_DIR) + "change_without_trigger_type.yaml";
 };
 
 TEST_F(YamlParserTest, ThrowExceptionIfFileNotFound) {
@@ -63,6 +64,12 @@ TEST_F(YamlParserTest, ParseTriggerTypeValue) {
     EXPECT_NO_THROW({
         auto opts = yaml::parse(complete_config);
     });
+}
+
+TEST_F(YamlParserTest, SetDefaultToTriggerTypeIfNotDefinedButChangeEventsAre) {
+    auto opts = yaml::parse(change_without_trigger_type);
+
+    EXPECT_EQ(opts.trigger_type, TriggerType::AfterPackets);
 }
 
 TEST_F(YamlParserTest, SetEveryEventToTriggerType) {

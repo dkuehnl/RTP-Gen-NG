@@ -27,6 +27,7 @@ TEST_F(ScenarioEngineTest, FillStartValuesIntoStreamState) {
     EXPECT_EQ(state.current_seq, m_opts.start_seq.value());
     EXPECT_EQ(state.current_codec, m_opts.start_codec.value());
     EXPECT_EQ(state.current_clockrate, m_opts.start_clockrate.value());
+    EXPECT_EQ(state.trigger_type, m_opts.trigger_type.value());
 }
 
 //Because the function of the following test is made via template, it
