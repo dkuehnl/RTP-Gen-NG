@@ -95,8 +95,24 @@ inline StreamOptions create_full_stream_options() {
  */
 inline StreamOptions create_minimal_stream_options() {
     StreamOptions opts;
-    opts.dest_ip = "127.0.0.1";
+    opts.dest_ip = "192.168.1.100";
     opts.dest_port = 5004;
+    opts.source_port = 30001;
+    opts.use_tcp = false;
+
+    // Packetization timing
+    opts.ptime_in_packet = 20;      // 20ms declared in packet
+    opts.ptime_btw_packet = 20;     // 20ms actual send interval
+
+    // Stream start values
+    opts.start_ssrc = 0xDEADBEEF;
+    opts.start_timestamp = 1000;
+    opts.timestamp_step_size = 160;  // 20ms @ 8kHz
+    opts.start_codec = 8;            // PCMA
+    opts.start_clockrate = 8000;
+    opts.start_seq = 42;
+    opts.seq_steps = 1;
+
     return opts;
 }
 

@@ -10,23 +10,20 @@
 
 class ScenarioEngineTest : public ::testing::Test {
 protected:
-    StreamOptions m_opts;
 
-    void SetUp() override {
-        m_opts = create_full_stream_options();
-    }
 };
 
 TEST_F(ScenarioEngineTest, FillStartValuesIntoStreamState) {
-    ScenarioEngine engine(m_opts);
+    auto opts = create_minimal_stream_options();
+    ScenarioEngine engine(opts);
 
     const auto& state = engine.get_state();
 
-    EXPECT_EQ(state.current_ssrc, m_opts.start_ssrc.value());
-    EXPECT_EQ(state.current_timestamp, m_opts.start_timestamp.value());
-    EXPECT_EQ(state.current_seq, m_opts.start_seq.value());
-    EXPECT_EQ(state.current_codec, m_opts.start_codec.value());
-    EXPECT_EQ(state.current_clockrate, m_opts.start_clockrate.value());
+    EXPECT_EQ(state.current_ssrc, opts.start_ssrc.value());
+    EXPECT_EQ(state.current_timestamp, opts.start_timestamp.value());
+    EXPECT_EQ(state.current_seq, opts.start_seq.value());
+    EXPECT_EQ(state.current_codec, opts.start_codec.value());
+    EXPECT_EQ(state.current_clockrate, opts.start_clockrate.value());
 }
 /*
 TEST_F(ScenarioEngineTest, FillChangeEventIntoDeque) {
