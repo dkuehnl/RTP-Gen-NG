@@ -20,20 +20,38 @@ void sort_by_trigger(std::deque<T>& deque) {
 }
 
 ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
-    extract_initial_state_values(opts);
+    init(opts);
+}
 
+void ScenarioEngine::tick(uint64_t delta_ms) {
+    m_state.elapsed_ms += delta_ms;
+    m_state.packet_count++;
+
+
+}
+
+void ScenarioEngine::init(const StreamOptions& opts) {
+    extract_initial_state_values(opts);
+    extract_changes(opts);
+    sort_change_deques();
+}
+
+void ScenarioEngine::extract_changes(const StreamOptions& opts) {
     m_ssrc_changes = to_deque(opts.ssrc_changes);
-    sort_by_trigger(m_ssrc_changes);
     m_timestamp_changes = to_deque(opts.timestamp_changes);
-    sort_by_trigger(m_timestamp_changes);
     m_codec_change = to_deque(opts.codec_changes);
-    sort_by_trigger(m_codec_change);
     m_sequence_change = to_deque(opts.sequence_changes);
-    sort_by_trigger(m_sequence_change);
     m_pause_stream = to_deque(opts.pause_stream);
-    sort_by_trigger(m_pause_stream);
     m_transport_changes = to_deque(opts.transport_changes);
-    sort_by_trigger(m_transport_changes); 
+}
+
+void ScenarioEngine::sort_change_deques() {
+    sort_by_trigger(m_ssrc_changes);
+    sort_by_trigger(m_timestamp_changes);
+    sort_by_trigger(m_codec_change);
+    sort_by_trigger(m_sequence_change);
+    sort_by_trigger(m_pause_stream);
+    sort_by_trigger(m_transport_changes);
 }
 
 void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {

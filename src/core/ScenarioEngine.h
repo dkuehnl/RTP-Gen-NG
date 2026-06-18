@@ -30,6 +30,7 @@ class ScenarioEngine {
 public:
     explicit ScenarioEngine(const StreamOptions& opts);
     [[nodiscard]] const StreamState& get_state() const;
+    void tick(uint64_t delta_ms);
 
     /**
      * Only for testing sort- and copy-mechanism
@@ -49,7 +50,10 @@ private:
     std::deque<PauseStream> m_pause_stream{};
     std::deque<TransportChange> m_transport_changes{};
 
+    void init(const StreamOptions& opts);
     void extract_initial_state_values(const StreamOptions& opts);
+    void extract_changes(const StreamOptions& opts);
+    void sort_change_deques();
 };
 
 
