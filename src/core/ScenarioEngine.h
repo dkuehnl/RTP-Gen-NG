@@ -14,6 +14,7 @@ struct StreamState {
     uint32_t current_ssrc{};
     uint16_t current_seq{};
     uint32_t current_timestamp{};
+    uint32_t current_timestamp_step_size{};
     uint8_t current_codec{};
     uint16_t current_clockrate{};
 
@@ -30,7 +31,7 @@ class ScenarioEngine {
 public:
     explicit ScenarioEngine(const StreamOptions& opts);
     [[nodiscard]] const StreamState& get_state() const;
-    void tick(uint64_t delta_ms);
+    const StreamState& tick(uint64_t delta_ms);
 
     /**
      * Only for testing sort- and copy-mechanism

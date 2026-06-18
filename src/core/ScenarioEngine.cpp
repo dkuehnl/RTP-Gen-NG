@@ -23,11 +23,10 @@ ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
     init(opts);
 }
 
-void ScenarioEngine::tick(uint64_t delta_ms) {
-    m_state.elapsed_ms += delta_ms;
-    m_state.packet_count++;
-
-
+const StreamState& ScenarioEngine::tick(uint64_t delta_ms) {
+    m_state.current_seq++;
+    m_state.current_timestamp += m_state.current_timestamp_step_size;
+    return m_state;
 }
 
 void ScenarioEngine::init(const StreamOptions& opts) {
@@ -58,6 +57,7 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_ssrc = opts.start_ssrc.value();
     m_state.current_seq = opts.start_seq.value();
     m_state.current_timestamp = opts.start_timestamp.value();
+    m_state.current_timestamp_step_size = opts.timestamp_step_size.value();
     m_state.current_codec = opts.start_codec.value();
     m_state.current_clockrate = opts.start_clockrate.value();
 
@@ -66,6 +66,6 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_src_port = opts.source_port.value();
 }
 
-const StreamState &ScenarioEngine::get_state() const {
+const StreamState& ScenarioEngine::get_state() const {
     return m_state;
 }

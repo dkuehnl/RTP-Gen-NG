@@ -50,3 +50,18 @@ TEST_F(ScenarioEngineTest, TwoEventsInOneDequeAreSorted) {
     const auto& ssrc_deque = engine.get_ssrc_changes_for();
     EXPECT_EQ(ssrc_deque.front().trigger.value, 5);
 }
+
+//RTP specifica:
+//Seq and Timestamp should increase with every packet.
+//This is tested here.
+TEST_F(ScenarioEngineTest, NormalTickWithNoChangesIncreaseRTPfields) {
+    auto opts = create_minimal_stream_options();
+    opts.start_seq = 1;
+    opts.start_timestamp = 0;
+    ScenarioEngine engine(opts);
+
+    auto state = engine.tick(20);
+    EXPECT_EQ(state.current_seq, 2);
+    EXPECT_EQ(state.current_timestamp, 160);
+}
+
