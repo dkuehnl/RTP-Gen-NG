@@ -8,7 +8,7 @@
 #include "ScenarioEngine.h"
 #include "StreamOptionsFixture.h"
 
-class ScenarioEngineTest : public ::testing::Test {
+class ScenarioEngineBasicTest : public ::testing::Test {
 protected:
     StreamOptions m_opts{};
     std::optional<ScenarioEngine> m_engine;
@@ -18,7 +18,7 @@ protected:
     }
 };
 
-TEST_F(ScenarioEngineTest, FillStartValuesIntoStreamState) {
+TEST_F(ScenarioEngineBasicTest, FillStartValuesIntoStreamState) {
 
     const auto& state = m_engine->get_state();
 
@@ -33,7 +33,7 @@ TEST_F(ScenarioEngineTest, FillStartValuesIntoStreamState) {
 //Because the function of the following test is made via template, it
 //works exactly the same for every member of the same type. Therefore, only
 //one member is tested.
-TEST_F(ScenarioEngineTest, CopyVectorInDeque) {
+TEST_F(ScenarioEngineBasicTest, CopyVectorInDeque) {
     auto opts = create_full_stream_options();
     ScenarioEngine engine(opts);
 
@@ -44,7 +44,7 @@ TEST_F(ScenarioEngineTest, CopyVectorInDeque) {
 //Because the function of the following test is made via template, it
 //works exactly the same for every member of the same type. Therefore, only
 //one member is tested.
-TEST_F(ScenarioEngineTest, TwoEventsInOneDequeAreSorted) {
+TEST_F(ScenarioEngineBasicTest, TwoEventsInOneDequeAreSorted) {
     auto opts = create_two_ssrc_changes();
     opts.ssrc_changes[0].trigger_value = 10;
     opts.ssrc_changes[1].trigger_value = 5;
@@ -58,7 +58,7 @@ TEST_F(ScenarioEngineTest, TwoEventsInOneDequeAreSorted) {
 //RTP specifica:
 //Seq and Timestamp should increase with every packet.
 //This is tested here.
-TEST_F(ScenarioEngineTest, NormalTickWithNoChangesIncreaseRTPfields) {
+TEST_F(ScenarioEngineBasicTest, NormalTickWithNoChangesIncreaseRTPfields) {
     m_opts.start_seq = 1;
     m_opts.start_timestamp = 0;
     ScenarioEngine engine(m_opts);
@@ -68,7 +68,7 @@ TEST_F(ScenarioEngineTest, NormalTickWithNoChangesIncreaseRTPfields) {
     EXPECT_EQ(state.current_timestamp, 160);
 }
 
-TEST_F(ScenarioEngineTest, DoubleValuesAfterTwoTicks) {
+TEST_F(ScenarioEngineBasicTest, DoubleValuesAfterTwoTicks) {
     m_opts.start_seq = 1;
     m_opts.start_timestamp = 0;
 
@@ -80,16 +80,15 @@ TEST_F(ScenarioEngineTest, DoubleValuesAfterTwoTicks) {
     EXPECT_EQ(state.current_timestamp, 320);
 }
 
-TEST_F(ScenarioEngineTest, IncreaseInternalPacketCountPerTick) {
+TEST_F(ScenarioEngineBasicTest, IncreaseInternalPacketCountPerTick) {
     auto state = m_engine->tick(20);
 
     EXPECT_EQ(state.packet_count, 1);
 }
 
-TEST_F(ScenarioEngineTest, IncreaseInternalTimeCountPerTick) {
+TEST_F(ScenarioEngineBasicTest, IncreaseInternalTimeCountPerTick) {
     ScenarioEngine engine(m_opts);
     auto state = m_engine->tick(20);
 
     EXPECT_EQ(state.elapsed_ms, 20);
 }
-
