@@ -38,8 +38,8 @@ struct SSRCChange {
  */
 struct TimestampChange {
     uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
-    std::optional<uint32_t> new_timestamp{};    ///< Jump to absolute timestamp value.
-    std::optional<int16_t> steps_to_jump{};     ///< Relative jump in timestamp steps (negative = backwards).
+    std::optional<uint32_t> new_timestamp{};            ///< Jump to absolute timestamp value.
+    std::optional<int16_t> steps_to_jump{};             ///< Relative jump in timestamp steps (negative = backwards).
     //TODO: Step-Size ändern?
 
     std::optional<bool>  continue_seq{};

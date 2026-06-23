@@ -135,6 +135,21 @@ inline StreamOptions create_ssrc_change() {
 }
 
 /**
+ * @brief Creates a StreamOptions with only one Timestamp changes for testing.
+ */
+inline StreamOptions create_timestamp_change() {
+    auto opts = create_minimal_stream_options();
+
+    opts.trigger_type = TriggerType::AfterPackets;
+    TimestampChange evt;
+    evt.continue_seq = true;
+
+    opts.timestamp_changes.push_back(evt);
+
+    return opts;
+}
+
+/**
  * @brief Creates a StreamOptions with only SSRC changes for focused testing.
  */
 inline StreamOptions create_two_ssrc_changes() {

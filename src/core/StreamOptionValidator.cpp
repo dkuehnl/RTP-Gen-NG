@@ -61,7 +61,7 @@ namespace {
                 result.info.emplace_back("Set default to continue Seq (true)");
                 continue;
             }
-            if (!entry.continue_seq.value()) {
+            if (!entry.continue_seq.value() && !entry.seq_to_continue.has_value()) {
                 result.info.emplace_back("Timestamp change with new sequence numbering activated, random start-sequence will be generated.");
                 entry.seq_to_continue = rg::rtp::generate_sequence();
             }

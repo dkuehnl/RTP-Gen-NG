@@ -20,7 +20,7 @@ void sort_by_trigger(std::deque<T>& deque) {
 }
 
 template<typename T>
-bool ScenarioEngine::is_an_der_reihe(const T& event) {
+bool ScenarioEngine::trigger_reached(const T& event) {
     if (m_state.trigger_type == TriggerType::AfterPackets) {
         return m_state.packet_count >= event.trigger_value;
     }
@@ -29,28 +29,6 @@ bool ScenarioEngine::is_an_der_reihe(const T& event) {
 
 ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
     init(opts);
-}
-
-const StreamState& ScenarioEngine::tick(uint64_t delta_ms) {
-    m_state.current_seq++;
-    m_state.current_timestamp += m_state.current_timestamp_step_size;
-    m_state.packet_count++;
-    m_state.elapsed_ms += delta_ms;
-
-    //Check nach Triggertype
-    //Änderung anwenden wenn trigger_value erreicht
-    while (!m_ssrc_changes.empty() && is_an_der_reihe(m_ssrc_changes.front())) {
-        auto event = m_ssrc_changes.front();
-        m_state.current_ssrc = event.new_ssrc.value();
-
-        if (event.continue_seq.has_value() && !event.continue_seq.value()) {
-            m_state.current_seq = event.seq_to_continue.value();
-        }
-
-        m_ssrc_changes.pop_front();
-    }
-
-    return m_state;
 }
 
 void ScenarioEngine::init(const StreamOptions& opts) {
@@ -93,4 +71,51 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
 
 const StreamState& ScenarioEngine::get_state() const {
     return m_state;
+}
+
+const StreamState& ScenarioEngine::tick(uint64_t delta_ms) {
+    m_state.current_seq++;
+    m_state.current_timestamp += m_state.current_timestamp_step_size;
+    m_state.packet_count++;
+    m_state.elapsed_ms += delta_ms;
+
+    while (!m_ssrc_changes.empty() && trigger_reached(m_ssrc_changes.front())) {
+        apply(m_ssrc_changes.front());
+        m_ssrc_changes.pop_front();
+    }
+
+    while (!m_timestamp_changes.empty() && trigger_reached(m_timestamp_changes.front())) {
+        apply(m_timestamp_changes.front());
+        m_timestamp_changes.pop_front();
+    }
+
+    return m_state;
+}
+
+void ScenarioEngine::apply(const SSRCChange& ssrc_change) {
+    if (ssrc_change.new_ssrc.has_value()) {
+        m_state.current_ssrc = ssrc_change.new_ssrc.value();
+    }
+
+    if (ssrc_change.continue_seq.has_value() && !ssrc_change.continue_seq.value()) {
+        m_state.current_seq = ssrc_change.seq_to_continue.value();
+    }
+
+    if (ssrc_change.continue_timestamp.has_value() && !ssrc_change.continue_timestamp.value()) {
+        m_state.current_timestamp = ssrc_change.timestamp_to_continue.value();
+    }
+}
+
+void ScenarioEngine::apply(const TimestampChange& timestamp_change) {
+    if (timestamp_change.new_timestamp.has_value()) {
+        m_state.current_timestamp = timestamp_change.new_timestamp.value();
+    }
+
+    if (timestamp_change.steps_to_jump.has_value()) {
+        m_state.current_timestamp += (timestamp_change.steps_to_jump.value() * m_state.current_timestamp_step_size);
+    }
+
+    if (timestamp_change.continue_seq.has_value() && !timestamp_change.continue_seq.value()) {
+        m_state.current_seq = timestamp_change.seq_to_continue.value();
+    }
 }

@@ -27,7 +27,8 @@ add_executable(core_tests
         IntegrationParserValidator.cpp
         ScenarioEngineBasicTest.cpp
         StreamOptionsFixture.h
-        ScenarioEngingeSSRCTest.cpp
+        ScenarioEngineSSRCTest.cpp
+        ScenarioEngineTimestampTest.cpp
 )
 
 target_compile_definitions(core_tests

@@ -45,7 +45,6 @@ private:
     StreamState m_prev_state{};
 
     std::deque<SSRCChange> m_ssrc_changes{};
-
     std::deque<TimestampChange> m_timestamp_changes{};
     std::deque<CodecChange> m_codec_change{};
     std::deque<SequenceChange> m_sequence_change{};
@@ -56,9 +55,11 @@ private:
     void extract_initial_state_values(const StreamOptions& opts);
     void extract_changes(const StreamOptions& opts);
     void sort_change_deques();
+    void apply(const SSRCChange& ssrc_change);
+    void apply(const TimestampChange& timestamp_change);
 
     template<class T>
-    bool is_an_der_reihe(const T &event);
+    bool trigger_reached(const T &event);
 };
 
 
