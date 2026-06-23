@@ -118,6 +118,23 @@ inline StreamOptions create_minimal_stream_options() {
 }
 
 /**
+ * @brief Creates a StreamOptions with only one SSRC changes for testing.
+ */
+inline StreamOptions create_ssrc_change() {
+    auto opts = create_minimal_stream_options();
+
+    opts.trigger_type = TriggerType::AfterPackets;
+    SSRCChange evt1;
+    evt1.trigger_value = 10;
+    evt1.new_ssrc = 0x11111111;
+    evt1.continue_seq = true;
+    evt1.continue_timestamp = true;
+    opts.ssrc_changes.push_back(evt1);
+
+    return opts;
+}
+
+/**
  * @brief Creates a StreamOptions with only SSRC changes for focused testing.
  */
 inline StreamOptions create_two_ssrc_changes() {
