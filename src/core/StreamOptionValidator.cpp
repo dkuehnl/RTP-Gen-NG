@@ -23,7 +23,7 @@ namespace {
                 entry.continue_seq = true;
                 result.info.emplace_back("Set default to continue Seq (true)");
             }
-            if (!entry.continue_seq.value()) {
+            if (!entry.continue_seq.value() && !entry.seq_to_continue.has_value()) {
                 result.info.emplace_back("SSRC change with new sequencing activated, random start-sequence will be generated.");
                 entry.seq_to_continue = rg::rtp::generate_sequence();
             }
@@ -31,7 +31,7 @@ namespace {
                 entry.continue_timestamp = true;
                 result.info.emplace_back("Set default to continue Timestamp (true)");
             }
-            if (!entry.continue_timestamp.value()) {
+            if (!entry.continue_timestamp.value() && !entry.timestamp_to_continue.has_value()) {
                 result.info.emplace_back("SSRC change with new timestamp activated, random start-timestamp will be generated.");
                 entry.timestamp_to_continue = rg::rtp::generate_timestamp();
             }
