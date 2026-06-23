@@ -17,6 +17,7 @@ struct StreamState {
     uint32_t current_timestamp_step_size{};
     uint8_t current_codec{};
     uint16_t current_clockrate{};
+    TriggerType trigger_type{}; 
 
     uint64_t packet_count{0};
     uint64_t elapsed_ms{0};
@@ -55,6 +56,9 @@ private:
     void extract_initial_state_values(const StreamOptions& opts);
     void extract_changes(const StreamOptions& opts);
     void sort_change_deques();
+
+    template<class T>
+    bool is_an_der_reihe(const T &event);
 };
 
 

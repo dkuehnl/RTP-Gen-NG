@@ -19,6 +19,14 @@ void sort_by_trigger(std::deque<T>& deque) {
     );
 }
 
+template<typename T>
+bool ScenarioEngine::is_an_der_reihe(const T& event) {
+    if (m_state.trigger_type == TriggerType::AfterPackets) {
+        return m_state.packet_count >= event.trigger_value;
+    }
+    return m_state.elapsed_ms >= event.trigger_value;
+}
+
 ScenarioEngine::ScenarioEngine(const StreamOptions& opts) {
     init(opts);
 }
@@ -28,6 +36,20 @@ const StreamState& ScenarioEngine::tick(uint64_t delta_ms) {
     m_state.current_timestamp += m_state.current_timestamp_step_size;
     m_state.packet_count++;
     m_state.elapsed_ms += delta_ms;
+
+    //Check nach Triggertype
+    //Änderung anwenden wenn trigger_value erreicht
+    while (!m_ssrc_changes.empty() && is_an_der_reihe(m_ssrc_changes.front())) {
+        auto event = m_ssrc_changes.front();
+        m_state.current_ssrc = event.new_ssrc.value();
+
+        if (event.continue_seq.has_value() && !event.continue_seq.value()) {
+            m_state.current_seq = event.seq_to_continue.value();
+        }
+
+        m_ssrc_changes.pop_front();
+    }
+
     return m_state;
 }
 
@@ -62,6 +84,7 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_timestamp_step_size = opts.timestamp_step_size.value();
     m_state.current_codec = opts.start_codec.value();
     m_state.current_clockrate = opts.start_clockrate.value();
+    m_state.trigger_type = opts.trigger_type.value();
 
     m_state.current_dest_ip = opts.dest_ip;
     m_state.current_dest_port = opts.dest_port.value();
