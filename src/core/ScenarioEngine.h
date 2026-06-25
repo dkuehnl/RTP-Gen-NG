@@ -27,6 +27,7 @@ struct StreamState {
     uint32_t        current_timestamp_step_size{};
     uint8_t         current_codec{};
     uint16_t        current_clockrate{};
+    uint8_t         current_ptime_in_packet{};
     TriggerType     trigger_type{};                         ///< Determines whether events fire on packet_count or elapsed_ms.
 
     uint64_t        packet_count{0};

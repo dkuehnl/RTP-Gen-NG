@@ -60,6 +60,7 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_seq = opts.start_seq.value();
     m_state.current_timestamp = opts.start_timestamp.value();
     m_state.current_timestamp_step_size = opts.timestamp_step_size.value();
+    m_state.current_ptime_in_packet = opts.ptime_in_packet.value();
     m_state.current_codec = opts.start_codec.value();
     m_state.current_clockrate = opts.start_clockrate.value();
     m_state.trigger_type = opts.trigger_type.value();
