@@ -194,23 +194,23 @@ namespace {
         });
     }
 
-    ValidationResult validate_basics(StreamOptions& opts) {
+    ValidationResult validate_basics(const StreamOptions& opts) {
         ValidationResult result{true, {}, {}};
 
         if (opts.dest_ip.empty()) {
-            result.errors.push_back("No dest_ip set");
+            result.errors.emplace_back("No dest_ip set");
             result.ok = false;
         }
         if (!opts.dest_port.has_value()) {
-            result.errors.push_back("No destination-port set");
+            result.errors.emplace_back("No destination-port set");
             result.ok = false;
         }
         if (opts.dest_port.has_value() && opts.dest_port.value() <= 1024) {
-            result.errors.push_back("Invalid destination-port set");
+            result.errors.emplace_back("Invalid destination-port set");
             result.ok = false;
         }
         if (opts.source_port.has_value() && opts.source_port <= 1024) {
-            result.errors.push_back("Invalid source-port set");
+            result.errors.emplace_back("Invalid source-port set");
             result.ok = false;
         }
 

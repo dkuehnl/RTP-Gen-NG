@@ -190,7 +190,11 @@ void ScenarioEngine::apply(const TransportChange& transport_change) {
         m_state.current_dest_port = transport_change.new_dest_port.value();
     }
 
-    if (transport_change.new_source_port.has_value()) {
+    if (!transport_change.use_random_new_source_port.value_or(false) && transport_change.new_source_port.has_value()) {
         m_state.current_src_port = transport_change.new_source_port.value();
+    }
+
+    if (transport_change.use_random_new_source_port.value_or(false)) {
+        m_state.use_new_random_src_port = true;
     }
 }

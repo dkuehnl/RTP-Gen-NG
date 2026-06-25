@@ -26,6 +26,7 @@ struct StreamState {
 
     std::string current_dest_ip{};
     uint16_t current_dest_port{};
+    bool use_new_random_src_port{false};
     uint16_t current_src_port{};
 };
 
