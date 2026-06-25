@@ -33,6 +33,7 @@ add_executable(core_tests
         ScenarioEngineSequenceTest.cpp
         ScenarioEnginePauseTest.cpp
         ScenarioEngineTransportTest.cpp
+        PacketBuilderTest.cpp
 )
 
 target_compile_definitions(core_tests

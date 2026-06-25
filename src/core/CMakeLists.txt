@@ -8,6 +8,8 @@ add_library(core
         YamlParser.h
         ScenarioEngine.cpp
         ScenarioEngine.h
+        PacketBuilder.cpp
+        PacketBuilder.h
         #more .cpp-files placed here
 )
 
