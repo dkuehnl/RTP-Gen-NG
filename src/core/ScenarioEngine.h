@@ -43,7 +43,6 @@ public:
 
 private:
     StreamState m_state{};
-    StreamState m_prev_state{};
 
     std::deque<SSRCChange> m_ssrc_changes{};
     std::deque<TimestampChange> m_timestamp_changes{};
