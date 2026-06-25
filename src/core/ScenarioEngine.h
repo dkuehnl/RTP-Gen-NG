@@ -22,6 +22,7 @@ struct StreamState {
     uint64_t packet_count{0};
     uint64_t elapsed_ms{0};
     bool is_paused{false};
+    uint32_t ms_to_pause{};
 
     std::string current_dest_ip{};
     uint16_t current_dest_port{};
@@ -46,8 +47,8 @@ private:
 
     std::deque<SSRCChange> m_ssrc_changes{};
     std::deque<TimestampChange> m_timestamp_changes{};
-    std::deque<CodecChange> m_codec_change{};
-    std::deque<SequenceChange> m_sequence_change{};
+    std::deque<CodecChange> m_codec_changes{};
+    std::deque<SequenceChange> m_sequence_changes{};
     std::deque<PauseStream> m_pause_stream{};
     std::deque<TransportChange> m_transport_changes{};
 
@@ -57,6 +58,10 @@ private:
     void sort_change_deques();
     void apply(const SSRCChange& ssrc_change);
     void apply(const TimestampChange& timestamp_change);
+    void apply(const CodecChange& codec_change);
+    void apply(const SequenceChange& sequence_change);
+    void apply(const PauseStream& pause_stream);
+    void apply(const TransportChange& transport_change);
 
     template<class T>
     bool trigger_reached(const T &event);

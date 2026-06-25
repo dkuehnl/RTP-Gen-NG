@@ -77,7 +77,7 @@ struct CodecChange {
  */
 struct SequenceChange {
     uint64_t trigger_value{};                           ///< Threshold value (packet count or seconds).
-    std::optional<int16_t> seq_to_jump{};   ///< Relative jump (negative = backwards).
+    std::optional<int16_t> seq_to_jump{};               ///< Relative jump (negative = backwards).
 };
 
 /**

@@ -118,7 +118,7 @@ inline StreamOptions create_minimal_stream_options() {
 }
 
 /**
- * @brief Creates a StreamOptions with only one SSRC changes for testing.
+ * @brief Creates a StreamOptions with only one SSRC change for testing.
  */
 inline StreamOptions create_ssrc_change() {
     auto opts = create_minimal_stream_options();
@@ -135,7 +135,7 @@ inline StreamOptions create_ssrc_change() {
 }
 
 /**
- * @brief Creates a StreamOptions with only one Timestamp changes for testing.
+ * @brief Creates a StreamOptions with only one Timestamp change for testing.
  */
 inline StreamOptions create_timestamp_change() {
     auto opts = create_minimal_stream_options();
@@ -145,6 +145,23 @@ inline StreamOptions create_timestamp_change() {
     evt.continue_seq = true;
 
     opts.timestamp_changes.push_back(evt);
+
+    return opts;
+}
+
+/**
+ * @brief Creates a StreamOptions with only one Codec change for testing.
+ */
+inline StreamOptions create_codec_change() {
+    auto opts = create_minimal_stream_options();
+
+    opts.trigger_type = TriggerType::AfterPackets;
+    CodecChange evt;
+    evt.continue_seq = true;
+    evt.continue_ssrc = true;
+    evt.continue_timestamp = true;
+
+    opts.codec_changes.push_back(evt);
 
     return opts;
 }

@@ -29,6 +29,10 @@ add_executable(core_tests
         StreamOptionsFixture.h
         ScenarioEngineSSRCTest.cpp
         ScenarioEngineTimestampTest.cpp
+        ScenarioEngineCodecTest.cpp
+        ScenarioEngineSequenceTest.cpp
+        ScenarioEnginePauseTest.cpp
+        ScenarioEngineTransportTest.cpp
 )
 
 target_compile_definitions(core_tests
