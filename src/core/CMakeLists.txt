@@ -12,10 +12,13 @@ add_library(core
         PacketBuilder.h
         Scheduler.cpp
         Scheduler.h
-        Sender.cpp
         Sender.h
         #more .cpp-files placed here
 )
+
+if (UNIX)
+    target_sources(core PRIVATE Sender.cpp)
+endif()
 
 include(FetchContent)
 
