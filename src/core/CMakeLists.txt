@@ -10,6 +10,10 @@ add_library(core
         ScenarioEngine.h
         PacketBuilder.cpp
         PacketBuilder.h
+        Scheduler.cpp
+        Scheduler.h
+        Sender.cpp
+        Sender.h
         #more .cpp-files placed here
 )
 
