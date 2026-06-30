@@ -62,7 +62,7 @@ TEST_F(ScenarioEngineTransportTest, SetNewSrcPort) {
     EXPECT_EQ(state.current_src_port, m_opts.transport_changes[0].new_source_port);
 }
 
-TEST_F(ScenarioEngineTransportTest, SetFlagForRandomSourcePort) {
+TEST_F(ScenarioEngineTransportTest, SetSrcPortToZeroIfRandom) {
     m_opts.transport_changes[0].use_random_new_source_port = true;
     ScenarioEngine engine(m_opts);
 
@@ -71,5 +71,5 @@ TEST_F(ScenarioEngineTransportTest, SetFlagForRandomSourcePort) {
         state = engine.tick(20);
     }
 
-    EXPECT_TRUE(state.use_new_random_src_port);
+    EXPECT_EQ(state.current_src_port, 0);
 }
