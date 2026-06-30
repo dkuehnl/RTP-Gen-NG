@@ -196,6 +196,6 @@ void ScenarioEngine::apply(const TransportChange& transport_change) {
     }
 
     if (transport_change.use_random_new_source_port.value_or(false)) {
-        m_state.use_new_random_src_port = true;
+        m_state.current_src_port = 0;
     }
 }
