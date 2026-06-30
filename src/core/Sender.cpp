@@ -46,6 +46,9 @@ void Sender::send(const std::vector<uint8_t>& packet, const StreamState& state) 
 }
 
 void Sender::rebind_if_needed(const StreamState& state) {
+    // New socket is created and bound before the old one is closed, so a
+    // failed rebind leaves m_sockfd/m_src_port untouched and sending can
+    // continue on the previous port.
     int new_sockfd = socket(AF_INET, SOCK_DGRAM, 0);
     if (new_sockfd < 0) {
         std::cerr << "Rebind failed (socket creation): " << strerror(errno) << "\n";
@@ -57,7 +60,7 @@ void Sender::rebind_if_needed(const StreamState& state) {
     local.sin_addr.s_addr = INADDR_ANY;
     local.sin_port = htons(state.current_src_port);
 
-    if (bind(m_sockfd, reinterpret_cast<sockaddr*>(&local), sizeof(local)) < 0) {
+    if (bind(new_sockfd, reinterpret_cast<sockaddr*>(&local), sizeof(local)) < 0) {
         close(new_sockfd);
         std::cerr << "Rebind failed (bind to port: " << state.current_src_port << "): " << strerror(errno) << "\n";
         return;
