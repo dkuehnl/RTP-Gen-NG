@@ -67,3 +67,7 @@ void Sender::rebind_if_needed(const StreamState& state) {
     m_sockfd = new_sockfd;
     m_src_port = state.current_src_port;
 }
+
+Sender::~Sender() {
+    close(m_sockfd);
+}

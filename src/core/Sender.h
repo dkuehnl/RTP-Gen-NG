@@ -10,6 +10,7 @@
 class Sender {
 public:
     explicit Sender(uint16_t src_port = 0);
+    ~Sender();
     void send(const std::vector<uint8_t>& packet, const StreamState& state);
 
 private:
@@ -18,6 +19,5 @@ private:
 
     void rebind_if_needed(const StreamState& state);
 };
-
 
 #endif //RTPGEN_NG_SENDER_H
