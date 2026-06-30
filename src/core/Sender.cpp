@@ -39,7 +39,10 @@ void Sender::send(const std::vector<uint8_t>& packet, const StreamState& state) 
     dest.sin_addr.s_addr = inet_addr(state.current_dest_ip.c_str());
     dest.sin_port = htons(state.current_dest_port);
 
-    sendto(m_sockfd, packet.data(), packet.size(), 0, reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+    auto bytes_send = sendto(m_sockfd, packet.data(), packet.size(), 0, reinterpret_cast<sockaddr*>(&dest), sizeof(dest));
+    if (bytes_send < 0) {
+        std::cerr << "Error while Sending packet: " << strerror(errno) << "\n";
+    }
 }
 
 void Sender::rebind_if_needed(const StreamState& state) {
