@@ -7,7 +7,7 @@
 
 #include <thread>
 
-Scheduler::Scheduler(ScenarioEngine& engine, const Sender& sender, uint64_t start_interval)
+Scheduler::Scheduler(ScenarioEngine& engine, Sender& sender, uint64_t start_interval)
     : m_engine(engine), m_sender(sender), m_ptime_btw_packets(start_interval) {}
 
 void Scheduler::start_stream() {
@@ -23,6 +23,7 @@ void Scheduler::start_stream() {
 
         auto rtp_packet = rtp::builder::generate_rtp_packet(stream_state);
         m_sender.send(rtp_packet, stream_state);
+
 
         std::this_thread::sleep_for(std::chrono::milliseconds(m_ptime_btw_packets));
     }
