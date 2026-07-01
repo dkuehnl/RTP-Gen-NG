@@ -13,27 +13,30 @@ inline constexpr const char* YAML_TEMPLATE = R"(
 #you need to setup a proper edge-case-scenario
 
 connectionDetails:
-    destinationIP: ""
-    destinationPort: 34000
-    sourcePort: ""
-    useTCP: no
+  destinationIP: 192.168.178.1
+  destinationPort: 34000
+  sourcePort: 35000
+  useTCP: no
 streamStartValues:
-    ssrc: 0x112233
-    timestamp: 0
-    timestampStep: 150
-    seq: 0
-    seqStep: 1
+  ssrc: 0x112233
+  timestamp: 160
+  timestampStep: 150
+  seq: 10
+  seqStep: 1
+  codec: 9
+  startClockrate: 8000
+  ptimeInPacket: 20
+  ptimeBtwPacket: 20
+triggerUnit: Packets
 changes:
-    - ssrcChanges:
-        - trigger:
-            type: AfterPackets
-            value: 100
-          newSsrc: 0x445566
-    - codecChanges:
-        - trigger:
-            type: AfterTime
-            value: 20
-          stepsToJump: 100
+  - type: ssrcChange
+    trigger:
+      value: 100
+    newSsrc: 0x445566
+    continueSeq: no
+    seqToContinue: 300
+    continueTimestamp: no
+    timestampToContinue: 320
 )";
 
 #endif //RTPGEN_NG_YAML_TEMPLATE_H
