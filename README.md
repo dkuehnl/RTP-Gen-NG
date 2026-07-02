@@ -1,8 +1,8 @@
-# RTPGen NG — NextGen RTP Generator
+# RTPGen NG — Next-Gen RTP Generator
 
-> ⚠️ **Alpha / Pre-release** — Active development. APIs and config schema may change without notice.
+A Linux CLI tool for generating customizable RTP streams with configurable anomalous behavior — built to test RTP stacks, not to play audio. Payload content is irrelevant by design (null-byte payloads are intentional); what matters is precise control over sequence numbers, timestamps, SSRC, source port, codec, and mid-stream transport changes.
 
-A configurable CLI tool for generating RTP and SRTP test traffic over UDP Unicast. Designed specifically for testing edge cases, anomalous stream behavior, and interoperability scenarios that standard traffic generators cannot produce.
+Primary use case: paired with **Asterisk** for SIP/RTP testing. Asterisk owns the full SIP signaling lifecycle; RTPGen NG operates as an autonomous bypass engine, receiving destination IP/port and codec from Asterisk over a control channel and then driving the RTP stream itself — completely bypassing Asterisk's own media stack.
 
 ---
 
@@ -15,9 +15,8 @@ Most RTP test tools generate well-behaved streams. RTPGen NG generates the strea
 - Codec switches without SSRC changes
 - Timestamp manipulation (absolute and relative)
 - ptime/delta mismatches
-- SRTP/RTP context mismatches
 - Stream pauses with configurable duration
-- Transport-layer redirects mid-stream
+- Transport-layer redirects mid-stream (new source port / rebind)
 
 ---
 
@@ -28,32 +27,56 @@ Most RTP test tools generate well-behaved streams. RTPGen NG generates the strea
 - **Inline editor flow** — invoke without arguments to open a YAML template in `$EDITOR` (Kubernetes-style)
 - **Sensible defaults** — only destination IP and port are mandatory; everything else has a fallback
 - **Validation with feedback** — warnings for no-op events, errors for invalid config, info for applied defaults
+- **External control channel** — session start/end/dest-update driven by an external peer (e.g. an Asterisk dialplan), decoupling stream lifecycle from process lifecycle
 
 ---
 
 ## Supported Change Events
 
-| Event            | Trigger       | Description                                              |
-|------------------|---------------|----------------------------------------------------------|
-| `ssrcChange`     | packets / time | Replace SSRC, optionally reset seq and timestamp        |
-| `timestampChange`| packets / time | Absolute jump or relative step manipulation             |
-| `codecChange`    | packets / time | Switch payload type and clockrate, with SSRC/seq control|
-| `sequenceChange` | packets / time | Jump sequence number forward or backward                |
-| `pauseStream`    | packets / time | Stop sending packets for N milliseconds                 |
-| `transportChange`| packets / time | Redirect to new destination IP/port or source port      |
+| Event             | Trigger        | Description                                                |
+|-------------------|----------------|--------------------------------------------------------------|
+| `ssrcChange`      | packets / time | Replace SSRC, optionally reset seq and timestamp             |
+| `timestampChange` | packets / time | Absolute jump or relative step manipulation                  |
+| `codecChange`     | packets / time | Switch payload type and clockrate, with SSRC/seq control      |
+| `sequenceChange`  | packets / time | Jump sequence number forward or backward                     |
+| `pauseStream`     | packets / time | Stop sending packets for N milliseconds                      |
+| `transportChange` | packets / time | Redirect to new destination IP/port or source port           |
+
+---
+
+## Architecture
+
+```
+main.cpp → YAML/CLI parsing → StreamOptions → StreamOptionsValidator
+         → RtpEngine (ScenarioEngine + Scheduler + Sender) → IControlChannel
+```
+
+| Component | Responsibility |
+|---|---|
+| `CliParser` | Parses a reduced set of connection-level CLI flags (dest IP/port, source port, input file, verbosity). |
+| `YamlParser` | Parses the full scenario configuration (stream start values + change events) from YAML. |
+| `StreamOptionsValidator` | Validates and applies defaults to a parsed `StreamOptions`; single point of truth for configuration correctness. |
+| `ScenarioEngine` | Advances stream state (sequence, timestamp, SSRC, transport) and consumes scheduled change events. |
+| `PacketBuilder` | Builds RTP packets from current `StreamState`. |
+| `Scheduler` | Drives the send-loop timing (pacing, pause handling). |
+| `Sender` | Owns the UDP socket; sends packets, rebinding on demand without dropping the stream. |
+| `IControlChannel` | Strategy interface for external stream control (`start_stream`, `end_stream`, `update_dest`); current implementation: Unix domain socket. |
+| `RtpEngine` | Wires the above together into a single stream session; owns the session lifecycle. |
+| `TemplateEditor` | Interactive YAML config editor, launched when no CLI args are given. |
 
 ---
 
 ## Requirements
 
-| Dependency  | Version      |
-|-------------|--------------|
-| C++         | 20           |
-| CMake       | 3.22+        |
-| yaml-cpp    | via FetchContent |
-| GoogleTest  | via FetchContent (tests only) |
+| Dependency | Version           |
+|------------|-------------------|
+| C++        | 20                |
+| CMake      | 3.22+             |
+| yaml-cpp   | via FetchContent (MIT) |
+| CLI11      | header-only, in `external/` (BSD-3-Clause) |
+| GoogleTest | via FetchContent (tests only) |
 
-Target runtime: **Linux / UNIX**
+Target runtime: **Linux / UNIX** (not portable to Windows/macOS by design)
 
 ---
 
@@ -62,11 +85,20 @@ Target runtime: **Linux / UNIX**
 ```bash
 git clone https://github.com/dkuehnl/RTP-Gen-NG.git
 cd RTP-Gen-NG
-cmake -B build
-cmake --build build
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target cli_app
 ```
 
-The binary will be at `build/bin/rtpgen-ng`.
+The binary is built at `build/src/cli/cli_app`.
+
+To build and run the test suite instead:
+
+```bash
+cmake --build build --target core_tests
+ctest --test-dir build
+```
+
+> Developed on Windows via CLion with remote SSH deployment to a Linux build host; any Linux toolchain works equally well for a local build.
 
 ---
 
@@ -75,23 +107,28 @@ The binary will be at `build/bin/rtpgen-ng`.
 ### With a config file
 
 ```bash
-rtpgen-ng --file my_scenario.yaml
+cli_app --file my_scenario.yaml
 ```
 
 ### Interactive editor mode
 
 ```bash
-rtpgen-ng
+cli_app
 ```
 
 Opens a YAML template in `$EDITOR`. Edit, save, and close — the stream starts immediately. On parse error, the file is saved to `~/` with an error message.
 
-### Keep config after run
+### Connection-level flags only (CLI-only, no scenario/change-events)
 
-If opened in interactive editor mode or the CLI-args (see -h for more) are used, the config can be saved with:
 ```bash
-rtpgen-ng [...] --keep-config
+cli_app --dest-ip 192.168.178.1 --dest-port 34000 --source-port 35000
 ```
+
+Increase verbosity with repeated `-v` (`-v`, `-vv`, `-vvv`).
+
+### Control channel
+
+Regardless of invocation, the process starts an `IControlChannel` listener (Unix socket at `/tmp/rtpgen.sock` by default) and waits for an external `start_stream{dest_ip, dest_port}` message — e.g. sent from an Asterisk dialplan once a call reaches `Up`, using `${CHANNEL(rtp,dest)}` and `${CHANNEL(audionativeformat)}` to populate destination and codec. `end_stream` tears the session down; `update_dest` is reserved for re-INVITE scenarios.
 
 ---
 
@@ -163,19 +200,19 @@ changes:
 
 ### Defaults applied automatically
 
-| Field              | Default                                  |
-|--------------------|------------------------------------------|
-| `sourcePort`       | 30000                                    |
-| `useTCP`           | false                                    |
-| `ptimeInPacket`    | 20 ms                                    |
-| `ptimeBtwPacket`   | 20 ms                                    |
-| `start_ssrc`       | 0x112233                                 |
-| `start_seq`        | 0                                        |
-| `seqStep`          | 1                                        |
-| `start_timestamp`  | 0                                        |
-| `timestampStep`    | (clockrate × ptime) / 1000              |
-| `codec`            | 8 (PCMA)                                 |
-| `startClockrate`   | 8000 Hz                                  |
+| Field             | Default                          |
+|-------------------|-----------------------------------|
+| `sourcePort`      | 30000                             |
+| `useTCP`          | false                              |
+| `ptimeInPacket`   | 20 ms                              |
+| `ptimeBtwPacket`  | 20 ms                              |
+| `start_ssrc`      | 0x112233                           |
+| `start_seq`       | 0                                   |
+| `seqStep`         | 1                                    |
+| `start_timestamp` | 0                                    |
+| `timestampStep`   | (clockrate × ptime) / 1000          |
+| `codec`           | 8 (PCMA)                             |
+| `startClockrate`  | 8000 Hz                               |
 
 ---
 
@@ -183,8 +220,9 @@ changes:
 
 ```
 src/
-  core/        # StreamOptions, validation, YAML parser, random generators
-  cli/         # CLI entry point (CLI11)
+  core/        # StreamOptions, validation, YAML/CLI parsing, ScenarioEngine,
+               # PacketBuilder, Scheduler, Sender, IControlChannel
+  cli/         # CLI entry point (main.cpp, TemplateEditor)
 tests/         # GoogleTest/GMock unit tests
 external/      # Header-only dependencies (CLI11)
 docs/          # Design documents
@@ -196,7 +234,7 @@ docs/          # Design documents
 
 ```bash
 cmake -B build
-cmake --build build
+cmake --build build --target core_tests
 cd build && ctest
 ```
 
@@ -204,16 +242,19 @@ cd build && ctest
 
 ## Status
 
-This project is in active development. The following components are planned or in progress:
-
 - [x] StreamOptions data structures
 - [x] YAML config parser
 - [x] Validation & default system
-- [ ] ScenarioEngine (event scheduling)
-- [ ] PacketBuilder (RTP/SRTP packet assembly)
-- [ ] Scheduler
-- [ ] UDP Sender
-- [ ] SRTP support
+- [x] ScenarioEngine (event scheduling)
+- [x] PacketBuilder (RTP packet assembly)
+- [x] Scheduler
+- [x] UDP Sender
+- [x] RtpEngine (session wiring, lifecycle)
+- [x] IControlChannel — Unix socket implementation
+- [ ] AMI-driven control-channel triggering (Asterisk `Newstate`/`DialEnd` events)
+- [ ] Re-INVITE destination/codec update handling
+- [ ] Multi-stream support (deferred, out of current scope)
+- [ ] SRTP-Implementation incl. switch from plain RTP to SRTP
 
 ---
 
@@ -225,4 +266,4 @@ Not open for external contributions at this stage. Issues and feedback welcome v
 
 ## License
 
-Not yet specified.
+MIT — see [LICENSE](LICENSE).
