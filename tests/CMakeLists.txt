@@ -2,7 +2,7 @@ if (NOT ENABLE_TESTS)
     return()
 endif()
 
-set(TEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+set(TEST_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data/")
 
 include(FetchContent)
 
@@ -21,7 +21,19 @@ FetchContent_MakeAvailable(googletest)
 
 # --- Test Executable ---
 add_executable(core_tests
-        calculator_test.cpp
+        StreamOptionValidatorBasicTest.cpp
+        StreamOptionValidatorScenarioTest.cpp
+        YamlParserTest.cpp
+        IntegrationParserValidator.cpp
+        ScenarioEngineBasicTest.cpp
+        StreamOptionsFixture.h
+        ScenarioEngineSSRCTest.cpp
+        ScenarioEngineTimestampTest.cpp
+        ScenarioEngineCodecTest.cpp
+        ScenarioEngineSequenceTest.cpp
+        ScenarioEnginePauseTest.cpp
+        ScenarioEngineTransportTest.cpp
+        PacketBuilderTest.cpp
 )
 
 target_compile_definitions(core_tests
@@ -33,6 +45,7 @@ target_link_libraries(core_tests
         PRIVATE
         core
         gtest_main
+        gmock
 )
 
 include(GoogleTest)

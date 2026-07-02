@@ -1,0 +1,58 @@
+connectionDetails:
+  destinationIP: 192.168.178.1
+  destinationPort: 34000
+  sourcePort: 35000
+  useTCP: no
+streamStartValues:
+  ssrc: 0x112233
+  timestamp: 160
+  timestampStep: 150
+  seq: 10
+  seqStep: 1
+  codec: 9
+  startClockrate: 8000
+  ptimeInPacket: 20
+  ptimeBtwPacket: 20
+triggerUnit: Packets
+changes:
+  - type: ssrcChange
+    trigger:
+      value: 100
+    newSsrc: 0x445566
+    continueSeq: no
+    seqToContinue: 300
+    continueTimestamp: no
+    timestampToContinue: 320
+  - type: timestampChange
+    trigger:
+      value: 20
+    stepsToJump: 100
+    newTimestamp: 320
+    continueSeq: no
+    seqToContinue: 30
+  - type: codecChange
+    trigger:
+      value: 500
+    newCodec: 12
+    newClockrate: 16000
+    continueSsrc: no
+    ssrcToContinue: 0x334455
+    continueSeq: no
+    seqToContinue: 32000
+    continueTimestamp: no
+    timestampToContinue: 26123
+  - type: sequenceChange
+    trigger:
+      value: 500
+    seqToJump: 6000
+  - type: pauseStream
+    trigger:
+      value: 500
+    msToPause: 1000
+  - type: transportChange
+    trigger:
+      value: 1000
+    newDestIp: 192.168.178.2
+    newDestPort: 37000
+    useRandomNewSourcePort: no
+    newSourcePort: 2000

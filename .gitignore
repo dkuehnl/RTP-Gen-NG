@@ -1,0 +1,98 @@
+# ========================
+# CLion / JetBrains IDEs
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+cmake-build-*/
+
+# ========================
+# CMake
+# ========================
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# Build directories (generic and named)
+build/
+build-*/
+out/
+out-*/
+
+# ========================
+# Compiled output
+# ========================
+*.exe
+*.out
+*.app
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.pdb
+
+# ========================
+# Google Test
+# ========================
+# Test result files (optional, keep if CI needs them)
+*.xml
+test_results/
+Testing/
+
+# ========================
+# MinGW / Windows specifics
+# ========================
+*.stackdump
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ========================
+# VS Code (Linux workflow)
+# ========================
+.vscode/
+# Exception: keep shared settings if desired
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+*.code-workspace
+
+# ========================
+# GCC / Clang temporaries
+# ========================
+*.d
+*.gch
+*.pch
+
+# ========================
+# Profiling & Debug
+# ========================
+*.dSYM/
+gmon.out
+callgrind.out.*
+massif.out.*
+cachegrind.out.*
+
+# ========================
+# OS / Editor residues
+# ========================
+*~
+*.swp
+*.swo
+.DS_Store
+.Spotlight-V100
+.Trashes
