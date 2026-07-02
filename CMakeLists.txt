@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(
         RTPGen_NG
-        VERSION 0.1.0
+        VERSION 1.0.0
         LANGUAGES CXX
 )
 

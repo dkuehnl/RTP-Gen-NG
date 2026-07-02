@@ -86,10 +86,10 @@ Target runtime: **Linux / UNIX** (not portable to Windows/macOS by design)
 git clone https://github.com/dkuehnl/RTP-Gen-NG.git
 cd RTP-Gen-NG
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target cli_app
+cmake --build build --target rtpgen-ng
 ```
 
-The binary is built at `build/src/cli/cli_app`.
+The binary is built at `build/src/cli/rtpgen-ng`.
 
 To build and run the test suite instead:
 
@@ -107,13 +107,13 @@ ctest --test-dir build
 ### With a config file
 
 ```bash
-cli_app --file my_scenario.yaml
+rtpgen-ng --file my_scenario.yaml
 ```
 
 ### Interactive editor mode
 
 ```bash
-cli_app
+rtpgen-ng
 ```
 
 Opens a YAML template in `$EDITOR`. Edit, save, and close — the stream starts immediately. On parse error, the file is saved to `~/` with an error message.
@@ -121,7 +121,7 @@ Opens a YAML template in `$EDITOR`. Edit, save, and close — the stream starts 
 ### Connection-level flags only (CLI-only, no scenario/change-events)
 
 ```bash
-cli_app --dest-ip 192.168.178.1 --dest-port 34000 --source-port 35000
+rtpgen-ng --dest-ip 192.168.178.1 --dest-port 34000 --source-port 35000
 ```
 
 Increase verbosity with repeated `-v` (`-v`, `-vv`, `-vvv`).
