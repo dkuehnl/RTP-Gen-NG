@@ -165,14 +165,8 @@ namespace {
 
         }
     }
-}
 
-namespace yaml {
-    StreamOptions parse(const std::string& filepath) {
-
-        check_filepath(filepath);
-
-        YAML::Node config = YAML::LoadFile(filepath);
+    StreamOptions parse_node(const YAML::Node& config) {
         StreamOptions opt;
 
         parse_connection_details(config, opt);
@@ -180,5 +174,16 @@ namespace yaml {
         parse_change_events(config, opt);
 
         return opt;
+    }
+}
+
+namespace yaml {
+    StreamOptions parse(const std::string& filepath) {
+        check_filepath(filepath);
+        return parse_node(YAML::LoadFile(filepath));
+    }
+
+    StreamOptions parse_from_string(const std::string& content) {
+        return parse_node(YAML::Load(content));
     }
 }

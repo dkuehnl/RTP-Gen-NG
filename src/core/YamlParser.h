@@ -57,6 +57,23 @@ namespace yaml {
      * @throws YAML::Exception         On malformed YAML or missing mandatory keys.
      */
     StreamOptions parse(const std::string& filepath);
+
+    /**
+     * @brief Parses a YAML config content into a StreamOptions instance.
+     *
+     * Only connectionDetails.destinationIP and connectionDetails.destinationPort
+     * are mandatory. All other fields are optional and left as std::nullopt if
+     * absent — defaults are applied later by check_configuration().
+     *
+     * @param content represented yaml-code as String.
+     * @return Populated StreamOptions struct.
+     * @throws YamlFileNotFound        If the file does not exist.
+     * @throws WrongFileFormat         If the extension is not .yaml/.yml.
+     * @throws YamlUnknownTriggerType  If a trigger type string is not recognized.
+     * @throws YamlUnknownChangeEvent  If a change event type string is not recognized.
+     * @throws YAML::Exception         On malformed YAML or missing mandatory keys.
+     */
+    StreamOptions parse_from_string(const std::string& content);
 };
 
 
