@@ -53,6 +53,11 @@ int main(int argc, char** argv) {
         RtpEngine engine(raw_opts, debug_level, control_channel);
         engine.run();
 
+        engine.on_shutdown([] {
+            g_shutdown_requested = true;
+            g_shutdown_cv.notify_all();
+        });
+
         std::unique_lock lock(g_shutdown_mutex);
         g_shutdown_cv.wait(lock, [] { return g_shutdown_requested.load(); });
 

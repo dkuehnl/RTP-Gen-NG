@@ -76,8 +76,9 @@ void UnixSocketControlChannel::stop() {
 
 void UnixSocketControlChannel::dispatch(const std::string& raw_message) {
     if (raw_message.rfind("start_stream", 0) == 0 && m_start_handler) {
-
+        m_start_handler(StartStreamMsg{});
     } else if (raw_message.rfind("stop_stream", 0) == 0 && m_end_handler) {
+        std::cout << "stop_stream received" << std::endl;
         m_end_handler();
     } else if (raw_message.rfind("update_stream", 0) == 0 && m_update_handler) {
 

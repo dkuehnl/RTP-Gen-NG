@@ -30,13 +30,15 @@ enum class DebugLevel { None, Verbose, MoreVerbose, Debug };
  * control-channel listener thread. The actual Scheduler send-loop thread is
  * started lazily inside the on_start_stream handler once an external
  * start_stream control message arrives. stop() ends both the send-loop and
- * the control-channel listener (full session teardown).
+ * the control-channel listener (full session teardown), then invokes the
+ * optional shutdown handler (see on_shutdown()) to notify the caller.
  *
  * @note Sender, ScenarioEngine, and Scheduler are constructed directly in the
- *       initializer list (declaration order matters: m_control_channel before
- *       m_opts before m_sender/m_engine/m_scheduler) since Scheduler holds
- *       reference members and none of the three types are default-
- *       constructible or assignable.
+ *       initializer list (declaration order matters: m_control_channel,
+ *       m_control_worker, m_shutdown_handler before m_opts before
+ *       m_sender/m_engine/m_scheduler) since Scheduler holds reference
+ *       members and none of the three types are default-constructible or
+ *       assignable.
  * @todo No guard yet against a second start_stream message arriving while
  *       m_worker is still running (would reassign a live jthread -> terminate).
  */
@@ -74,9 +76,21 @@ public:
      */
     void stop();
 
+    /**
+     * @brief Registers a callback invoked after full session teardown.
+     *
+     * Fired from the end_stream handler after stop() completes. Intended for
+     * the caller (e.g. main()) to signal process-level shutdown (e.g. wake a
+     * condition_variable) without RtpEngine depending on caller internals.
+     * @param handler Callback taking no arguments; stored in m_shutdown_handler.
+     */
+    using ShutdownHandler = std::function<void()>;
+    void on_shutdown(ShutdownHandler handler) { m_shutdown_handler = std::move(handler); }
+
 private:
     IControlChannel& m_control_channel;
     std::jthread m_control_worker;
+    ShutdownHandler m_shutdown_handler;
 
     StreamOptions m_opts;
     Sender m_sender;

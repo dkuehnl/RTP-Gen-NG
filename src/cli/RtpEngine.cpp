@@ -71,5 +71,8 @@ void RtpEngine::wire_control_channel() {
     m_control_channel.on_start_stream([this](const StartStreamMsg& msg) {
         m_worker = std::jthread([this] { m_scheduler.start_stream(); });
     });
-    m_control_channel.on_end_stream([this] { stop(); });
+    m_control_channel.on_end_stream([this] {
+        stop();
+        if (m_shutdown_handler) m_shutdown_handler();
+    });
 }
