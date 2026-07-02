@@ -2,6 +2,9 @@
 // Created by dkueh on 08.01.2026.
 //
 
+#include <condition_variable>
+#include <csignal>
+#include <mutex>
 #include <iostream>
 #include <fstream>
 
@@ -9,8 +12,24 @@
 #include "CliParser.h"
 #include "TemplateEditor.h"
 #include "RtpEngine.h"
+#include "UnixSocketControlChannel.h"
+
+namespace {
+    std::condition_variable g_shutdown_cv;
+    std::mutex g_shutdown_mutex;
+    std::atomic_bool g_shutdown_requested{false};
+
+    void handle_signal(int) {
+        g_shutdown_requested = true;
+        g_shutdown_cv.notify_all();
+    }
+}
+
 
 int main(int argc, char** argv) {
+    std::signal(SIGINT, handle_signal);
+    std::signal(SIGTERM, handle_signal);
+
     StreamOptions raw_opts{};
     int v_count = 0;
 
@@ -30,7 +49,14 @@ int main(int argc, char** argv) {
     }
 
     try {
-        RtpEngine engine(raw_opts, debug_level);
+        UnixSocketControlChannel control_channel("/tmp/rtpgen.sock");
+        RtpEngine engine(raw_opts, debug_level, control_channel);
+        engine.run();
+
+        std::unique_lock lock(g_shutdown_mutex);
+        g_shutdown_cv.wait(lock, [] { return g_shutdown_requested.load(); });
+
+        engine.stop();
     } catch (...) {
         std::cerr << "Something went completly wrong. You're fucked up!" << std::endl;
         return 1;

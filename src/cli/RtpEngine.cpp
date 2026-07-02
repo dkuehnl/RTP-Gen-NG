@@ -9,12 +9,16 @@
 #include "StreamOptionValidator.h"
 #include "YamlParser.h"
 
-RtpEngine::RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level)
-    : m_opts(validate_or_throw(parse_opts(raw_opts), debug_level)),
+RtpEngine::RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level, IControlChannel& control_channel)
+    : m_control_channel(control_channel),
+      m_opts(validate_or_throw(parse_opts(raw_opts), debug_level)),
       m_sender(m_opts.source_port.value_or(0)),
       m_engine(m_opts),
       m_scheduler(m_engine, m_sender, m_opts.ptime_btw_packet.value_or(20))
-{}
+    {
+    std::cout << "Everything fine, waiting for start-signal" << std::endl;
+    wire_control_channel();
+}
 
 StreamOptions RtpEngine::parse_opts(StreamOptions& raw_opts) {
     if (!raw_opts.input_file_path.empty()) {
@@ -55,9 +59,17 @@ StreamOptions RtpEngine::validate_or_throw(StreamOptions opts, DebugLevel debug_
 }
 
 void RtpEngine::run() {
-    m_worker = std::jthread([this] { m_scheduler.start_stream(); });
+    m_control_worker = std::jthread([this] {m_control_channel.listen(); });
 }
 
 void RtpEngine::stop() {
     m_scheduler.end_stream();
+    m_control_channel.stop();
+}
+
+void RtpEngine::wire_control_channel() {
+    m_control_channel.on_start_stream([this](const StartStreamMsg& msg) {
+        m_worker = std::jthread([this] { m_scheduler.start_stream(); });
+    });
+    m_control_channel.on_end_stream([this] { stop(); });
 }

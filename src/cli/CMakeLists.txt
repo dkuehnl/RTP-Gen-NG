@@ -7,6 +7,9 @@ add_executable(cli_app
         TemplateEditor.h
         RtpEngine.cpp
         RtpEngine.h
+        IControlChannel.h
+        UnixSocketControlChannel.cpp
+        UnixSocketControlChannel.h
 )
 
 target_include_directories(cli_app PRIVATE ${CMAKE_SOURCE_DIR}/external)

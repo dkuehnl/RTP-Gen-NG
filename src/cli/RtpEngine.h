@@ -10,6 +10,7 @@
 #include "Scheduler.h"
 #include "Sender.h"
 #include "ScenarioEngine.h"
+#include "IControlChannel.h"
 
 /// @brief Verbosity level for message output.
 enum class DebugLevel { None, Verbose, MoreVerbose, Debug };
@@ -25,10 +26,19 @@ enum class DebugLevel { None, Verbose, MoreVerbose, Debug };
  * Construction is all-or-nothing: on validation failure, a std::runtime_error
  * is thrown and no member is left partially/invalidly constructed.
  *
+ * Stream lifecycle is decoupled from process lifecycle: run() only starts the
+ * control-channel listener thread. The actual Scheduler send-loop thread is
+ * started lazily inside the on_start_stream handler once an external
+ * start_stream control message arrives. stop() ends both the send-loop and
+ * the control-channel listener (full session teardown).
+ *
  * @note Sender, ScenarioEngine, and Scheduler are constructed directly in the
- *       initializer list (declaration order matters: m_opts before m_sender/
- *       m_engine/m_scheduler) since Scheduler holds reference members and none
- *       of the three types are default-constructible or assignable.
+ *       initializer list (declaration order matters: m_control_channel before
+ *       m_opts before m_sender/m_engine/m_scheduler) since Scheduler holds
+ *       reference members and none of the three types are default-
+ *       constructible or assignable.
+ * @todo No guard yet against a second start_stream message arriving while
+ *       m_worker is still running (would reassign a live jthread -> terminate).
  */
 class RtpEngine {
 public:
@@ -37,29 +47,42 @@ public:
      * @param raw_opts Raw options from CLI parsing or the interactive editor;
      *                  either input_file_path or input_content may be set.
      * @param debug_level Controls which validation messages are printed to stderr.
+     * @param control_channel Transport used to receive start/end/update_dest
+     *                         signals from an external peer (e.g. Asterisk).
+     *                         Referenced, not owned; caller keeps it alive for
+     *                         the lifetime of the RtpEngine.
      * @throws std::runtime_error If validation fails (see StreamOptionValidator).
      * @throws YamlFileNotFound, WrongFileFormat, YamlUnknownTriggerType,
      *         YamlUnknownChangeEvent, YAML::Exception If input_file_path/
      *         input_content parsing fails.
      */
-    explicit RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level);
+    explicit RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level, IControlChannel& control_channel);
 
     /**
-     * @brief Starts the blocking send loop via Scheduler::start_stream().
+     * @brief Starts the control-channel listener thread.
+     *
+     * Does not start the RTP send-loop; that begins only once the control
+     * channel receives a start_stream message (see wire_control_channel()).
      */
     void run();
 
     /**
-     * @brief End the Scheduler-loop and stops producing RTP packets.
+     * @brief Ends the Scheduler send-loop and stops the control-channel listener.
+     *
+     * Full session teardown; called from the registered end_stream handler
+     * or directly for process shutdown (e.g. on SIGTERM in main()).
      */
     void stop();
 
 private:
-    std::jthread m_worker;
+    IControlChannel& m_control_channel;
+    std::jthread m_control_worker;
+
     StreamOptions m_opts;
     Sender m_sender;
     ScenarioEngine m_engine;
     Scheduler m_scheduler;
+    std::jthread m_worker;
 
     /**
      * @brief Resolves raw_opts into a parsed StreamOptions.
@@ -83,6 +106,14 @@ private:
      * @throws std::runtime_error If validation fails (result.ok == false).
      */
     static StreamOptions validate_or_throw(StreamOptions opts, DebugLevel debug_level);
+
+    /**
+     * @brief Registers RtpEngine's handlers on m_control_channel.
+     *
+     * start_stream spawns m_worker to run Scheduler::start_stream(). end_stream
+     * calls stop() (full teardown, including the control channel itself).
+     */
+    void wire_control_channel();
 };
 
 
