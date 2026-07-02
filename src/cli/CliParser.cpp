@@ -21,7 +21,7 @@ namespace cliparser {
     void setup_argparser(CLI::App& app, StreamOptions& opts, int& v_count) {
         app.add_option(
             "-f,--file",
-            opts.input_file,
+            opts.input_file_path,
             "File for Stream-Configuration, all other CLI-Args will be ignored"
         );
         app.add_flag(

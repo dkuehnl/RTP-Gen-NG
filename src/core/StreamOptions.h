@@ -113,7 +113,8 @@ struct TransportChange {
  * defaults applied by check_configuration().
  */
 struct StreamOptions {
-    std::string input_file{};
+    std::string input_file_path{};
+    std::string input_content{}; 
     bool save_config{false};
 
     std::string dest_ip{};                                  ///< Mandatory. Must not be empty.
