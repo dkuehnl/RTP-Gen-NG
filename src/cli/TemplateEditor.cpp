@@ -19,7 +19,7 @@
 #include "yaml_template.h"
 
 namespace template_editor {
-    int run_interactive_editor_flow() {
+    int run_interactive_editor_flow(StreamOptions& opts) {
         std::string path;
         try {
             create_tmp_template_file(YAML_TEMPLATE, path);
@@ -33,9 +33,8 @@ namespace template_editor {
                 return 1;
             }
 
-            std::string content = read_file(path);
+            opts.input_content = read_file(path);
 
-            std::cout << "Content: " << std::endl << content << std::endl;
             unlink(path.c_str());
         } catch (const std::exception& e) {
             std::cerr << "Error: " << e.what() << std::endl;

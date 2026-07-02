@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "StreamOptions.h"
 
 namespace template_editor {
     /**
@@ -17,10 +18,11 @@ namespace template_editor {
      * launch_editor_blocking(), then reads back and prints the edited content.
      * The temp file is always unlinked before returning, on every path.
      *
+     * @param opts StreamOptions to populate from reading temp-file.
      * @return 0 on success; 1 if the editor exited with a non-zero status or
      *         an exception was thrown during the flow.
      */
-    int run_interactive_editor_flow();
+    int run_interactive_editor_flow(StreamOptions& opts);
 
     /**
      * @brief Reads the full contents of a file into a string.
