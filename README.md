@@ -86,10 +86,10 @@ Target runtime: **Linux / UNIX** (not portable to Windows/macOS by design)
 git clone https://github.com/dkuehnl/RTP-Gen-NG.git
 cd RTP-Gen-NG
 cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target rtpgen-ng
+cmake --build build --target cli_app
 ```
 
-The binary is built at `build/src/cli/rtpgen-ng`.
+The binary is built at `build/bin/rtpgen-ng`.
 
 To build and run the test suite instead:
 
