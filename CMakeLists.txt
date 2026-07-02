@@ -27,7 +27,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 #-----------------------------------------------------
 
 option(ENABLE_TESTS "Build tests" ON)
-option(ENABLE_GUI "Build Qt GUI" OFF)
 option(ENABLE_CLI "Build CLI application" ON)
 
 #-----------------------------------------------------
@@ -40,13 +39,6 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-if (ENABLE_CLI AND ENABLE_GUI)
-    message(FATAL_ERROR "ENABLE_CLI and ENABLE_GUI cannot be enabled at the same time")
-endif()
-
-if (NOT (ENABLE_CLI OR ENABLE_GUI))
-    message(FATAL_ERROR "Either ENABLE_CLI or ENABLE_GUI must be enabled")
-endif()
 #-----------------------------------------------------
 # subdirectories
 #-----------------------------------------------------
