@@ -5,6 +5,8 @@ add_executable(cli_app
         CliParser.h
         TemplateEditor.cpp
         TemplateEditor.h
+        RtpEngine.cpp
+        RtpEngine.h
 )
 
 target_include_directories(cli_app PRIVATE ${CMAKE_SOURCE_DIR}/external)

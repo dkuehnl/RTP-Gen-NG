@@ -8,16 +8,15 @@
 #include "StreamOptions.h"
 #include "CliParser.h"
 #include "TemplateEditor.h"
-
-enum class DebugLevel { None, Verbose, MoreVerbose, Debug };
+#include "RtpEngine.h"
 
 int main(int argc, char** argv) {
-    StreamOptions opts{};
+    StreamOptions raw_opts{};
     int v_count = 0;
 
     int result = (argc == 1)
-        ? template_editor::run_interactive_editor_flow()
-        : cliparser::run_cli_flow(argc, argv, opts, v_count);
+        ? template_editor::run_interactive_editor_flow(raw_opts)
+        : cliparser::run_cli_flow(argc, argv, raw_opts, v_count);
 
     if (result != 0) return result;
 
@@ -30,6 +29,12 @@ int main(int argc, char** argv) {
         debug_level = DebugLevel::Debug;
     }
 
-    std::cout << "Wir können jetzt hier weiter machen" << std::endl;
+    try {
+        RtpEngine engine(raw_opts, debug_level);
+    } catch (...) {
+        std::cerr << "Something went completly wrong. You're fucked up!" << std::endl;
+        return 1;
+    }
+
     return 0;
 }

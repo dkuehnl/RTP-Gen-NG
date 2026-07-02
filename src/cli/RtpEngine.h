@@ -5,6 +5,8 @@
 #ifndef RTPGEN_NG_RTPENGINE_H
 #define RTPGEN_NG_RTPENGINE_H
 
+#include <thread>
+
 #include "Scheduler.h"
 #include "Sender.h"
 #include "ScenarioEngine.h"
@@ -47,7 +49,13 @@ public:
      */
     void run();
 
+    /**
+     * @brief End the Scheduler-loop and stops producing RTP packets.
+     */
+    void stop();
+
 private:
+    std::jthread m_worker;
     StreamOptions m_opts;
     Sender m_sender;
     ScenarioEngine m_engine;

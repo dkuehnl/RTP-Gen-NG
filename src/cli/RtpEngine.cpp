@@ -55,5 +55,9 @@ StreamOptions RtpEngine::validate_or_throw(StreamOptions opts, DebugLevel debug_
 }
 
 void RtpEngine::run() {
-    m_scheduler.start_stream();
+    m_worker = std::jthread([this] { m_scheduler.start_stream(); });
+}
+
+void RtpEngine::stop() {
+    m_scheduler.end_stream();
 }
