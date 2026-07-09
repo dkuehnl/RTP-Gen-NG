@@ -6,7 +6,7 @@
 
 #include <utility>
 #include <sys/socket.h>
-#include <netinet/in.h>   // sockaddr_in
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <poll.h>
 #include <unistd.h>
@@ -14,7 +14,6 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <bits/valarray_after.h>
 
 
 AmiControlChannel::AmiControlChannel(std::string host, const uint16_t port, std::string user, std::string secret)
