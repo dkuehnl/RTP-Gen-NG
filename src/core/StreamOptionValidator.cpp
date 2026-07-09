@@ -133,7 +133,6 @@ namespace {
             }
             if (!entry.seq_to_jump.has_value()) {
                 result.warnings.emplace_back("No value for Sequence-Jump provided, Event will be ignored.");
-                continue;
             }
         }
 
@@ -153,7 +152,6 @@ namespace {
             }
             if (!entry.ms_to_pause.has_value()) {
                 result.warnings.emplace_back("No value for Stream-Pause provided, Event will be ignored.");
-                continue;
             }
         }
 
@@ -230,8 +228,7 @@ namespace {
             }
         }
         if (opts.dest_port.has_value() && opts.dest_port.value() <= 1024) {
-            result.errors.emplace_back("Invalid destination-port set");
-            result.ok = false;
+            result.warnings.emplace_back("You are using a well-known or reserved port. I hope you know what you are doing.");
         }
         if (opts.source_port.has_value() && opts.source_port <= 1024) {
             result.errors.emplace_back("Invalid source-port set");

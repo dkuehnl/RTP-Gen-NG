@@ -42,8 +42,7 @@ TEST_F(SoValidatorTest, DetectInvalidDestPort) {
     empty_opts.dest_port = 22;
     auto result = sov::check_configuration(empty_opts);
 
-    ASSERT_FALSE(result.ok);
-    EXPECT_THAT(result.errors, ::testing::Contains("Invalid destination-port set"));
+    EXPECT_THAT(result.warnings, ::testing::Contains("You are using a well-known or reserved port. I hope you know what you are doing."));
 }
 
 TEST_F(SoValidatorTest, DetectInvalidSourcePort) {
