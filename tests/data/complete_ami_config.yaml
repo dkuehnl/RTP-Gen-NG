@@ -1,6 +1,9 @@
 connectionDetails:
-  destinationIP: 192.168.178.1
-  destinationPort: 34000
+  controlChannel: AMI
+  amiHost: 192.168.178.52
+  amiPort: 5060
+  amiUser: dkuehnlein
+  amiSecret: Password123!
   sourcePort: 35000
   useTCP: no
 streamStartValues:

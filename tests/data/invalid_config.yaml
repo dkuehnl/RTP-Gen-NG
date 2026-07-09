@@ -1,4 +1,5 @@
 connectionDetails:
+  controlChannel: UNIX
   destinationIP: 192.168.178.1
   destinationPort: 34000
   sourcePort: 22

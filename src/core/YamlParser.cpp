@@ -34,6 +34,12 @@ namespace {
         throw YamlUnknownTriggerType("Unknown Trigger type: " + type);
     }
 
+    ControlChannelType get_channel_type(const std::string& type) {
+        if (type == "AMI") return ControlChannelType::Ami;
+        if (type == "UNIX") return ControlChannelType::Unix;
+        throw YamlUnknownChannelType("Unknown ControlChannel-Type: " + type);
+    }
+
     SSRCChange parse_ssrc_change(const YAML::Node& change) {
         SSRCChange sc;
 
@@ -108,8 +114,18 @@ namespace {
     void parse_connection_details(const YAML::Node& config, StreamOptions& opt) {
         const auto& connection = config["connectionDetails"];
 
-        opt.dest_ip = connection["destinationIP"].as<std::string>();
-        opt.dest_port = connection["destinationPort"].as<uint16_t>();
+        auto channel_type = connection["controlChannel"].as<std::string>();
+        opt.control_channel = get_channel_type(channel_type);
+        if (opt.control_channel == ControlChannelType::Unix) {
+            opt.dest_ip = connection["destinationIP"].as<std::string>();
+            opt.dest_port = connection["destinationPort"].as<uint16_t>();
+        }
+        if (opt.control_channel == ControlChannelType::Ami) {
+            opt.ami_host = connection["amiHost"].as<std::string>();
+            opt.ami_port = connection["amiPort"].as<uint16_t>();
+            opt.ami_user = connection["amiUser"].as<std::string>();
+            opt.ami_secret = connection["amiSecret"].as<std::string>();
+        }
         set_if_defined(connection, "sourcePort", opt.source_port);
         set_if_defined(connection, "useTCP", opt.use_tcp);
     }

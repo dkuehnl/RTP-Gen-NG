@@ -38,6 +38,12 @@ public:
         : std::runtime_error(msg) {}
 };
 
+class YamlUnknownChannelType : public  std::runtime_error {
+public:
+    explicit YamlUnknownChannelType (const std::string& msg)
+        : std::runtime_error(msg) {}
+};
+
 
 namespace yaml {
 

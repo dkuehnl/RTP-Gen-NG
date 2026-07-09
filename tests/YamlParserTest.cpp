@@ -12,9 +12,10 @@ protected:
     std::string wrong_filepath = "invalid/file.yaml";
     std::string wrong_file_type = std::string(TEST_DATA_DIR) + "test.txt";
 
-    std::string complete_config = std::string(TEST_DATA_DIR) + "complete_config.yaml";
+    std::string complete_config = std::string(TEST_DATA_DIR) + "complete_unix_config.yaml";
     std::string no_event_config = std::string(TEST_DATA_DIR) + "no_event_config.yaml";
-    std::string minimal_config = std::string(TEST_DATA_DIR) + "minimal_config.yaml";
+    std::string minimal_unix_config = std::string(TEST_DATA_DIR) + "minimal_unix_config.yaml";
+    std::string minimal_ami_config = std::string(TEST_DATA_DIR) + "minimal_ami_config.yaml";
     std::string unknown_change_event = std::string(TEST_DATA_DIR) + "unknown_change_event.yaml";
     std::string change_without_trigger_type = std::string(TEST_DATA_DIR) + "change_without_trigger_type.yaml";
 };
@@ -37,13 +38,24 @@ TEST_F(YamlParserTest, ThrowExceptionIfWrongFileType) {
     }
 }
 
-TEST_F(YamlParserTest, ParseConnectionDetails) {
+TEST_F(YamlParserTest, ParseConnectionDetailsUNIX) {
     auto opts = yaml::parse(complete_config);
 
+    EXPECT_THAT(opts.control_channel, ControlChannelType::Unix);
     EXPECT_THAT(opts.dest_ip, "192.168.178.1");
     EXPECT_THAT(opts.dest_port, 34000);
     EXPECT_THAT(opts.source_port, 35000);
     EXPECT_FALSE(opts.use_tcp.value());
+}
+
+TEST_F(YamlParserTest, ParseConnectionDetailsAMI) {
+    auto opts = yaml::parse(minimal_ami_config);
+
+    EXPECT_THAT(opts.control_channel, ControlChannelType::Ami);
+    EXPECT_THAT(opts.ami_host, "192.168.178.52");
+    EXPECT_THAT(opts.ami_port, 5060);
+    EXPECT_THAT(opts.ami_user, "dkuehnlein");
+    EXPECT_THAT(opts.ami_secret, "Password123!");
 }
 
 TEST_F(YamlParserTest, ParseStreamStartValues) {
@@ -143,9 +155,15 @@ TEST_F(YamlParserTest, NoExceptionWithOnlyStartConfig) {
     });
 }
 
-TEST_F(YamlParserTest, NoExceptionWithMinimalConfig) {
+TEST_F(YamlParserTest, NoExceptionWithMinimalUNIXConfig) {
     EXPECT_NO_THROW({
-        auto opts = yaml::parse(minimal_config);
+        auto opts = yaml::parse(minimal_unix_config);
+    });
+}
+
+TEST_F(YamlParserTest, NoExceptionWithMinimalAMIConfig) {
+    EXPECT_NO_THROW({
+        auto opts = yaml::parse(minimal_ami_config);
     });
 }
 

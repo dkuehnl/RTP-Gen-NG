@@ -1,0 +1,6 @@
+connectionDetails:
+  controlChannel: AMI
+  amiHost: 192.168.178.52
+  amiPort: 5060
+  amiUser: dkuehnlein
+  amiSecret: Password123!
