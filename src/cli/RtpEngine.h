@@ -34,8 +34,8 @@ enum class DebugLevel { None, Verbose, MoreVerbose, Debug };
  * optional shutdown handler (see on_shutdown()) to notify the caller.
  *
  * @note Sender, ScenarioEngine, and Scheduler are constructed directly in the
- *       initializer list (declaration order matters: m_control_channel,
- *       m_control_worker, m_shutdown_handler before m_opts before
+ *       initializer list (declaration order matters: m_opts before
+ *       m_control_channel/m_control_worker/m_shutdown_handler before
  *       m_sender/m_engine/m_scheduler) since Scheduler holds reference
  *       members and none of the three types are default-constructible or
  *       assignable.
@@ -49,11 +49,11 @@ public:
      * @param raw_opts Raw options from CLI parsing or the interactive editor;
      *                  either input_file_path or input_content may be set.
      * @param debug_level Controls which validation messages are printed to stderr.
-     * @param control_channel Transport used to receive start/end/update_dest
-     *                         signals from an external peer (e.g. Asterisk).
-     *                         Referenced, not owned; caller keeps it alive for
-     *                         the lifetime of the RtpEngine.
-     * @throws std::runtime_error If validation fails (see StreamOptionValidator).
+     * @throws std::runtime_error If validation fails (see StreamOptionValidator),
+     *         or if control-channel construction fails (e.g. AMI connection/login
+     *         failure, see AmiControlChannel).
+     * @throws std::logic_error If control_channel resolves to ControlChannelType::Unset
+     *         despite validation (indicates a validator bug; see create_control_channel()).
      * @throws YamlFileNotFound, WrongFileFormat, YamlUnknownTriggerType,
      *         YamlUnknownChangeEvent, YAML::Exception If input_file_path/
      *         input_content parsing fails.
@@ -129,6 +129,20 @@ private:
      */
     void wire_control_channel();
 
+    /**
+     * @brief Instantiates the concrete IControlChannel implementation selected
+     *        by opts.control_channel.
+     *
+     * Called from the constructor's initializer list, after validate_or_throw()
+     * has run — opts is expected to already carry all fields the chosen
+     * implementation needs (e.g. ami_host/ami_port/ami_user/ami_secret for Ami).
+     *
+     * @param opts Validated StreamOptions.
+     * @return The constructed control channel, owned by the caller.
+     * @throws std::runtime_error If the chosen channel fails to connect/bind/login.
+     * @throws std::logic_error If opts.control_channel is Unset (should have been
+     *         rejected by the validator before this point).
+     */
     static std::unique_ptr<IControlChannel> create_control_channel(const StreamOptions& opts);
 };
 
