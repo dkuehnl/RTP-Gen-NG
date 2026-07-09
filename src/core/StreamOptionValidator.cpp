@@ -197,13 +197,37 @@ namespace {
     ValidationResult validate_basics(const StreamOptions& opts) {
         ValidationResult result{true, {}, {}};
 
-        if (opts.dest_ip.empty()) {
-            result.errors.emplace_back("No dest_ip set");
+        if (opts.control_channel == ControlChannelType::Unset) {
+            result.errors.emplace_back("No Control-Channel set");
             result.ok = false;
         }
-        if (!opts.dest_port.has_value()) {
-            result.errors.emplace_back("No destination-port set");
-            result.ok = false;
+        if (opts.control_channel == ControlChannelType::Unix) {
+            if (opts.dest_ip.empty()) {
+                result.errors.emplace_back("No dest_ip set");
+                result.ok = false;
+            }
+            if (!opts.dest_port.has_value()) {
+                result.errors.emplace_back("No destination-port set");
+                result.ok = false;
+            }
+        }
+        if (opts.control_channel == ControlChannelType::Ami) {
+            if (!opts.ami_host.has_value()) {
+                result.errors.emplace_back("No AMI-Host set");
+                result.ok = false;
+            }
+            if (!opts.ami_port.has_value()) {
+                result.errors.emplace_back("No AMI-Port set");
+                result.ok = false;
+            }
+            if (!opts.ami_user.has_value()) {
+                result.errors.emplace_back("No AMI-User set");
+                result.ok = false;
+            }
+            if (!opts.ami_secret.has_value()) {
+                result.errors.emplace_back("No AMI-Secret set");
+                result.ok = false;
+            }
         }
         if (opts.dest_port.has_value() && opts.dest_port.value() <= 1024) {
             result.errors.emplace_back("Invalid destination-port set");

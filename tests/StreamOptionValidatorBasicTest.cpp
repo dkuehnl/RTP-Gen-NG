@@ -15,14 +15,23 @@ protected:
     StreamOptions empty_opts{};
 };
 
-TEST_F(SoValidatorTest, DetectMissingIP) {
+TEST_F(SoValidatorTest, DetectUnsetControlChannel) {
+    auto result = sov::check_configuration(empty_opts);
+
+    ASSERT_FALSE(result.ok);
+    EXPECT_THAT(result.errors, ::testing::Contains("No Control-Channel set"));
+}
+
+TEST_F(SoValidatorTest, DetectMissingIpWithUnix) {
+    empty_opts.control_channel = ControlChannelType::Unix;
     auto result = sov::check_configuration(empty_opts);
 
     ASSERT_FALSE(result.ok);
     EXPECT_THAT(result.errors, ::testing::Contains("No dest_ip set"));
 }
 
-TEST_F(SoValidatorTest, DetectMissingDestPort) {
+TEST_F(SoValidatorTest, DetectMissingDestPortWithUnix) {
+    empty_opts.control_channel = ControlChannelType::Unix;
     auto result = sov::check_configuration(empty_opts);
 
     ASSERT_FALSE(result.ok);
@@ -43,6 +52,17 @@ TEST_F(SoValidatorTest, DetectInvalidSourcePort) {
 
     ASSERT_FALSE(result.ok);
     EXPECT_THAT(result.errors, ::testing::Contains("Invalid source-port set"));
+}
+
+TEST_F(SoValidatorTest, DetectMissingAmiConfig) {
+    empty_opts.control_channel = ControlChannelType::Ami;
+    auto result = sov::check_configuration(empty_opts);
+
+    ASSERT_FALSE(result.ok);
+    EXPECT_THAT(result.errors, ::testing::Contains("No AMI-Host set"));
+    EXPECT_THAT(result.errors, ::testing::Contains("No AMI-Port set"));
+    EXPECT_THAT(result.errors, ::testing::Contains("No AMI-User set"));
+    EXPECT_THAT(result.errors, ::testing::Contains("No AMI-Secret set"));
 }
 
 /******************************************************************
