@@ -15,7 +15,7 @@
 UnixSocketControlChannel::UnixSocketControlChannel(std::string socket_path)
     : m_socket_path(std::move(socket_path)) {
     m_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (m_sockfd < 0) throw std::runtime_error("socker() failed: " + std::string(strerror(errno)));
+    if (m_sockfd < 0) throw std::runtime_error("socket() failed: " + std::string(strerror(errno)));
 
     unlink(m_socket_path.c_str());
 

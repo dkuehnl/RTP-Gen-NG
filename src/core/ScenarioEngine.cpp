@@ -72,6 +72,12 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_src_port = opts.source_port.value();
 }
 
+void ScenarioEngine::set_rtp_destination(const std::string& dst_ip, const uint16_t dst_port) {
+    if (dst_ip.empty()) return;
+    m_state.current_dest_ip = dst_ip;
+    m_state.current_dest_port = dst_port;
+}
+
 const StreamState& ScenarioEngine::get_state() const {
     return m_state;
 }

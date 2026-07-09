@@ -10,6 +10,8 @@ add_executable(cli_app
         IControlChannel.h
         UnixSocketControlChannel.cpp
         UnixSocketControlChannel.h
+        AmiControlChannel.cpp
+        AmiControlChannel.h
 )
 
 target_include_directories(cli_app PRIVATE ${CMAKE_SOURCE_DIR}/external)

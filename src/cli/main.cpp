@@ -6,13 +6,11 @@
 #include <csignal>
 #include <mutex>
 #include <iostream>
-#include <fstream>
 
 #include "StreamOptions.h"
 #include "CliParser.h"
 #include "TemplateEditor.h"
 #include "RtpEngine.h"
-#include "UnixSocketControlChannel.h"
 
 namespace {
     std::condition_variable g_shutdown_cv;
@@ -49,8 +47,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        UnixSocketControlChannel control_channel("/tmp/rtpgen.sock");
-        RtpEngine engine(raw_opts, debug_level, control_channel);
+        RtpEngine engine(raw_opts, debug_level);
         engine.run();
 
         engine.on_shutdown([] {
@@ -63,7 +60,7 @@ int main(int argc, char** argv) {
 
         engine.stop();
     } catch (...) {
-        std::cerr << "Something went completly wrong. You're fucked up!" << std::endl;
+        std::cerr << "Something went completely wrong. You're fucked up!" << std::endl;
         return 1;
     }
 

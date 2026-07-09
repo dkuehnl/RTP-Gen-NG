@@ -83,6 +83,8 @@ public:
      */
     const StreamState& tick(uint64_t delta_ms);
 
+    void set_rtp_destination(const std::string& dst_ip, const uint16_t dst_port);
+
     /**
      * @brief Returns the current StreamState without advancing it.
      * @return Const reference to the internal state (valid until next tick()).

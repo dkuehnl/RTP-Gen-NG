@@ -6,12 +6,14 @@
 
 #include <iostream>
 
+#include "AmiControlChannel.h"
 #include "StreamOptionValidator.h"
+#include "UnixSocketControlChannel.h"
 #include "YamlParser.h"
 
-RtpEngine::RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level, IControlChannel& control_channel)
-    : m_control_channel(control_channel),
-      m_opts(validate_or_throw(parse_opts(raw_opts), debug_level)),
+RtpEngine::RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level)
+    : m_opts(validate_or_throw(parse_opts(raw_opts), debug_level)),
+      m_control_channel(create_control_channel(m_opts)),
       m_sender(m_opts.source_port.value_or(0)),
       m_engine(m_opts),
       m_scheduler(m_engine, m_sender, m_opts.ptime_btw_packet.value_or(20))
@@ -59,20 +61,39 @@ StreamOptions RtpEngine::validate_or_throw(StreamOptions opts, DebugLevel debug_
 }
 
 void RtpEngine::run() {
-    m_control_worker = std::jthread([this] {m_control_channel.listen(); });
+    m_control_worker = std::jthread([this] {m_control_channel->listen(); });
 }
 
 void RtpEngine::stop() {
     m_scheduler.end_stream();
-    m_control_channel.stop();
+    m_control_channel->stop();
 }
 
 void RtpEngine::wire_control_channel() {
-    m_control_channel.on_start_stream([this](const StartStreamMsg& msg) {
+    m_control_channel->on_start_stream([this](const StartStreamMsg& msg) {
+        m_engine.set_rtp_destination(msg.dest_ip, msg.dest_port);
         m_worker = std::jthread([this] { m_scheduler.start_stream(); });
     });
-    m_control_channel.on_end_stream([this] {
+    m_control_channel->on_end_stream([this] {
         stop();
         if (m_shutdown_handler) m_shutdown_handler();
     });
+}
+
+std::unique_ptr<IControlChannel> RtpEngine::create_control_channel(const StreamOptions& opts) {
+    auto type = opts.control_channel;
+
+    switch (type) {
+        case ControlChannelType::Unix:
+            return std::make_unique<UnixSocketControlChannel>("/tmp/rtpgen.sock");
+
+        case ControlChannelType::Ami:
+            return std::make_unique<AmiControlChannel>(
+                opts.ami_host.value(),
+                opts.ami_port.value(),
+                opts.ami_user.value(),
+                opts.ami_secret.value());
+    }
+
+    throw std::runtime_error("create_control_channel: unhandled ControlChannelType");
 }

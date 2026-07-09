@@ -58,7 +58,7 @@ public:
      *         YamlUnknownChangeEvent, YAML::Exception If input_file_path/
      *         input_content parsing fails.
      */
-    explicit RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level, IControlChannel& control_channel);
+    explicit RtpEngine(StreamOptions& raw_opts, DebugLevel debug_level);
 
     /**
      * @brief Starts the control-channel listener thread.
@@ -88,11 +88,11 @@ public:
     void on_shutdown(ShutdownHandler handler) { m_shutdown_handler = std::move(handler); }
 
 private:
-    IControlChannel& m_control_channel;
+    StreamOptions m_opts;
+    std::unique_ptr<IControlChannel> m_control_channel;
     std::jthread m_control_worker;
     ShutdownHandler m_shutdown_handler;
 
-    StreamOptions m_opts;
     Sender m_sender;
     ScenarioEngine m_engine;
     Scheduler m_scheduler;
@@ -128,6 +128,8 @@ private:
      * calls stop() (full teardown, including the control channel itself).
      */
     void wire_control_channel();
+
+    static std::unique_ptr<IControlChannel> create_control_channel(const StreamOptions& opts);
 };
 
 
