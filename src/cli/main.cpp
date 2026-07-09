@@ -59,6 +59,12 @@ int main(int argc, char** argv) {
         g_shutdown_cv.wait(lock, [] { return g_shutdown_requested.load(); });
 
         engine.stop();
+    } catch (const std::logic_error& e) {
+        std::cerr << "Internal Error: " << e.what() << std::endl;
+        return 1;
+    } catch (const std::runtime_error& e) {
+        std::cerr << "Failed to start: " << e.what() << std::endl;
+        return 1;
     } catch (...) {
         std::cerr << "Something went completely wrong. You're fucked up!" << std::endl;
         return 1;
