@@ -120,13 +120,12 @@ struct StreamOptions {
 
     ControlChannelType control_channel{};                   ///< Mandatory. Must not be empty.
     
-    std::optional<std::string> ami_host{}; 
-    std::optional<uint16_t> ami_port{}; 
-    std::optional<std::string> ami_user{};
-    std::optional<std::string> ami_secret{}; 
+    std::optional<std::string> ami_host{};                  ///< Mandatory only if AMI-Socket as ControlChannel is used
+    std::optional<uint16_t> ami_port{};                     ///< Mandatory only if AMI-Socket as ControlChannel is used
+    std::optional<std::string> ami_user{};                  ///< Mandatory only if AMI-Socket as ControlChannel is used
+    std::optional<std::string> ami_secret{};                ///< Mandatory only if AMI-Socket as ControlChannel is used
     
     std::string dest_ip{};                                  ///< Mandatory only if Unix-Socket as ControlChannel is used
-    ///TODO: Erase Port-Check, Port 0 should be valid for testing but generate warning. Current: Error-Message and validation fails
     std::optional<uint16_t> dest_port{};                    ///< Mandatory only if Unix-Socket as ControlChannel is used. std::optional because port 0 is a valid test value. Must be > 1024.
     std::optional<uint16_t> source_port{};                  ///< Default: 30000. Must be > 1024 if set.
     std::optional<bool> use_tcp{};                          ///< Default: false (UDP).
