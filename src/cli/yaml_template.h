@@ -11,8 +11,10 @@ inline constexpr const char* YAML_TEMPLATE = R"(
 #the advanced scenario-feature is available here.
 #Under the changes-part of the file you can configure as much changes as
 #you need to setup a proper edge-case-scenario
+#Please refer to the documentation for more information
 
 connectionDetails:
+  controlChannel: UNIX
   destinationIP: 192.168.178.1
   destinationPort: 34000
   sourcePort: 35000
