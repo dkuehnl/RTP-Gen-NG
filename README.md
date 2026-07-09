@@ -2,8 +2,12 @@
 
 A Linux CLI tool for generating customizable RTP streams with configurable anomalous behavior — built to test RTP stacks, not to play audio. Payload content is irrelevant by design (null-byte payloads are intentional); what matters is precise control over sequence numbers, timestamps, SSRC, source port, codec, and mid-stream transport changes.
 
-Primary use case: paired with **Asterisk** for SIP/RTP testing. Asterisk owns the full SIP signaling lifecycle; RTPGen NG operates as an autonomous bypass engine, receiving destination IP/port and codec from Asterisk over a control channel and then driving the RTP stream itself — completely bypassing Asterisk's own media stack.
-
+Primary use case: paired with **Asterisk** for SIP/RTP testing. Asterisk owns the full SIP
+signaling lifecycle; RTPGen NG operates as an autonomous bypass engine, driving the RTP
+stream itself — completely bypassing Asterisk's own media stack. Two control-channel modes
+are supported: a Unix domain socket (destination is configured up front) or Asterisk's own
+Manager Interface (AMI), where RTPGen NG connects directly to Asterisk, authenticates, and
+resolves the RTP destination automatically once a call reaches `Up`.
 ---
 
 ## Why RTPGen NG?
@@ -25,7 +29,7 @@ Most RTP test tools generate well-behaved streams. RTPGen NG generates the strea
 - **Event-based scenario engine** — trigger changes after N packets or after N seconds
 - **YAML-driven configuration** — define complex multi-event scenarios declaratively
 - **Inline editor flow** — invoke without arguments to open a YAML template in `$EDITOR` (Kubernetes-style)
-- **Sensible defaults** — only destination IP and port are mandatory; everything else has a fallback
+- **Sensible defaults** — only a control channel is strictly mandatory; everything else (including destination IP/port for the AMI mode) has a fallback or is resolved automatically
 - **Validation with feedback** — warnings for no-op events, errors for invalid config, info for applied defaults
 - **External control channel** — session start/end/dest-update driven by an external peer (e.g. an Asterisk dialplan), decoupling stream lifecycle from process lifecycle
 
@@ -60,7 +64,7 @@ main.cpp → YAML/CLI parsing → StreamOptions → StreamOptionsValidator
 | `PacketBuilder` | Builds RTP packets from current `StreamState`. |
 | `Scheduler` | Drives the send-loop timing (pacing, pause handling). |
 | `Sender` | Owns the UDP socket; sends packets, rebinding on demand without dropping the stream. |
-| `IControlChannel` | Strategy interface for external stream control (`start_stream`, `end_stream`, `update_dest`); current implementation: Unix domain socket. |
+| `IControlChannel` | Strategy interface for external stream control (`start_stream`, `end_stream`, `update_dest`); implementations: Unix domain socket, Asterisk AMI. |
 | `RtpEngine` | Wires the above together into a single stream session; owns the session lifecycle. |
 | `TemplateEditor` | Interactive YAML config editor, launched when no CLI args are given. |
 
@@ -128,24 +132,54 @@ Increase verbosity with repeated `-v` (`-v`, `-vv`, `-vvv`).
 
 ### Control channel
 
-Regardless of invocation, the process starts an `IControlChannel` listener (Unix socket at `/tmp/rtpgen.sock` by default) and waits for an external `start_stream{dest_ip, dest_port}` message — e.g. sent from an Asterisk dialplan once a call reaches `Up`, using `${CHANNEL(rtp,dest)}` and `${CHANNEL(audionativeformat)}` to populate destination and codec. `end_stream` tears the session down; `update_dest` is reserved for re-INVITE scenarios.
+Regardless of invocation, the process starts an `IControlChannel` listener and waits for an
+external signal before the RTP stream begins. Which implementation runs is selected via
+`connectionDetails.controlChannel` (`UNIX` or `AMI`) and cannot be mixed at runtime.
+
+**Unix mode:** listens on a Unix domain socket (`/tmp/rtpgen.sock` by default) for
+`start_stream`/`stop_stream` messages. Destination IP/port must already be configured
+(`destinationIP`/`destinationPort`); the control channel only drives lifecycle, not the
+RTP destination.
+
+**AMI mode:** connects directly to Asterisk's Manager Interface (TCP, typically port 5038),
+authenticates with the configured credentials, and subscribes to call events. On `Newstate`
+with `ChannelStateDesc: Up`, RTPGen NG resolves the RTP destination itself via
+`CHANNEL(rtp,dest)` — no dialplan changes or manual `start_stream` trigger required.
+`Hangup`/`DialEnd` end the session. Requires `directmedia=yes` on the relevant PJSIP
+endpoint so Asterisk stays out of the media path.
+
+In both modes, `end_stream`/`Hangup` tears the session down; `update_dest` (Unix) /
+re-INVITE handling (AMI) is reserved for future dest/codec-update scenarios.
 
 ---
 
 ## Configuration
 
-### Minimal example
+### Minimal example (Unix mode)
 
 ```yaml
 connectionDetails:
+  controlChannel: "UNIX"
   destinationIP: "192.168.1.100"
   destinationPort: 5004
+```
+
+### Minimal example (AMI mode)
+
+```yaml
+connectionDetails:
+  controlChannel: "AMI"
+  amiHost: "192.168.1.10"
+  amiPort: 5038
+  amiUser: "rtpgen"
+  amiSecret: "changeme"
 ```
 
 ### Full example with change events
 
 ```yaml
 connectionDetails:
+  controlChannel: "UNIX"
   destinationIP: "192.168.1.100"
   destinationPort: 5004
   sourcePort: 30000
@@ -214,6 +248,9 @@ changes:
 | `codec`           | 8 (PCMA)                             |
 | `startClockrate`  | 8000 Hz                               |
 
+> `controlChannel` has no default and is always mandatory; a missing or unrecognized value
+> is a hard validation error. `destinationIP`/`destinationPort` (Unix) or
+> `amiHost`/`amiPort`/`amiUser`/`amiSecret` (AMI) are mandatory depending on the selected mode.
 ---
 
 ## Project Structure
@@ -251,7 +288,7 @@ cd build && ctest
 - [x] UDP Sender
 - [x] RtpEngine (session wiring, lifecycle)
 - [x] IControlChannel — Unix socket implementation
-- [ ] AMI-driven control-channel triggering (Asterisk `Newstate`/`DialEnd` events)
+- [x] IControlChannel — AMI implementation (Newstate/Hangup triggering, automatic RTP-destination resolution)
 - [ ] Re-INVITE destination/codec update handling
 - [ ] Multi-stream support (deferred, out of current scope)
 - [ ] SRTP-Implementation incl. switch from plain RTP to SRTP

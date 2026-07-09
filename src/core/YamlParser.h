@@ -38,6 +38,7 @@ public:
         : std::runtime_error(msg) {}
 };
 
+/// @brief Thrown if the controlChannel type string is not recognized ("AMI"/"UNIX").
 class YamlUnknownChannelType : public  std::runtime_error {
 public:
     explicit YamlUnknownChannelType (const std::string& msg)
@@ -50,14 +51,16 @@ namespace yaml {
     /**
      * @brief Parses a YAML config file into a StreamOptions instance.
      *
-     * Only connectionDetails.destinationIP and connectionDetails.destinationPort
-     * are mandatory. All other fields are optional and left as std::nullopt if
-     * absent — defaults are applied later by check_configuration().
+     * connectionDetails.controlChannel is always mandatory. destinationIP/destinationPort
+     * are mandatory only if controlChannel is "UNIX"; amiHost/amiPort/amiUser/amiSecret
+     * are mandatory only if controlChannel is "AMI". All other fields are optional
+     * and left as std::nullopt if absent — defaults are applied later by check_configuration().
      *
      * @param filepath Path to a .yaml or .yml file.
      * @return Populated StreamOptions struct.
      * @throws YamlFileNotFound        If the file does not exist.
      * @throws WrongFileFormat         If the extension is not .yaml/.yml.
+     * @throws YamlUnknownChannelType  If controlChannel is not "AMI" or "UNIX".
      * @throws YamlUnknownTriggerType  If a trigger type string is not recognized.
      * @throws YamlUnknownChangeEvent  If a change event type string is not recognized.
      * @throws YAML::Exception         On malformed YAML or missing mandatory keys.
@@ -67,14 +70,16 @@ namespace yaml {
     /**
      * @brief Parses a YAML config content into a StreamOptions instance.
      *
-     * Only connectionDetails.destinationIP and connectionDetails.destinationPort
-     * are mandatory. All other fields are optional and left as std::nullopt if
-     * absent — defaults are applied later by check_configuration().
+     * connectionDetails.controlChannel is always mandatory. destinationIP/destinationPort
+     * are mandatory only if controlChannel is "UNIX"; amiHost/amiPort/amiUser/amiSecret
+     * are mandatory only if controlChannel is "AMI". All other fields are optional
+     * and left as std::nullopt if absent — defaults are applied later by check_configuration().
      *
      * @param content represented yaml-code as String.
      * @return Populated StreamOptions struct.
      * @throws YamlFileNotFound        If the file does not exist.
      * @throws WrongFileFormat         If the extension is not .yaml/.yml.
+     * @throws YamlUnknownChannelType  If controlChannel is not "AMI" or "UNIX".
      * @throws YamlUnknownTriggerType  If a trigger type string is not recognized.
      * @throws YamlUnknownChangeEvent  If a change event type string is not recognized.
      * @throws YAML::Exception         On malformed YAML or missing mandatory keys.

@@ -35,8 +35,8 @@ struct StreamState {
     bool            is_paused{false};                       ///< True for exactly one tick cycle after a PauseStream event fires.
     uint32_t        ms_to_pause{};                          ///< Duration the Scheduler must wait before the next tick(); reset to 0 after elapsed_ms is advanced.
 
-    std::string     current_dest_ip{};
-    uint16_t        current_dest_port{};
+    std::string     current_dest_ip{};                      ///< Empty at construction for ControlChannelType::Ami; populated via set_rtp_destination().
+    uint16_t        current_dest_port{};                    ///< 0 at construction for ControlChannelType::Ami; populated via set_rtp_destination().
     uint16_t        current_src_port{};
 };
 
@@ -56,7 +56,10 @@ struct StreamState {
  *
  * @note StreamOptions passed to the constructor must already be validated, and
  *       have all optional fields populated (i.e., sov::check_configuration() must
- *       have been called beforehand).
+ *       have been called beforehand). Exception: for ControlChannelType::Ami,
+ *       current_dest_ip/current_dest_port remain unset after construction and
+ *       must be populated later via set_rtp_destination() once the control
+ *       channel resolves the actual RTP endpoint.
  */
 class ScenarioEngine {
 public:
@@ -83,6 +86,19 @@ public:
      */
     const StreamState& tick(uint64_t delta_ms);
 
+    /**
+     * @brief Overwrites the current RTP destination after construction.
+     *
+     * Used for the Ami control-channel path, where the destination is not known
+     * at construction time (extract_initial_state_values() only populates
+     * current_dest_ip/current_dest_port for ControlChannelType::Unix) and instead
+     * arrives later via a start_stream control message. No-op if dst_ip is empty,
+     * so it is safe to call unconditionally from callers that don't distinguish
+     * control-channel type (see RtpEngine::wire_control_channel()).
+     *
+     * @param dst_ip Destination IP; call is ignored if empty.
+     * @param dst_port Destination port.
+     */
     void set_rtp_destination(const std::string& dst_ip, const uint16_t dst_port);
 
     /**

@@ -29,10 +29,11 @@ namespace sov {
     /**
      * @brief Validates and normalizes a StreamOptions instance.
      *
-     * Applies defaults to all absent optional fields, validates mandatory fields
-     * (dest_ip, dest_port), checks port ranges, and validates all change events.
-     * Invalid or no-op change events are silently dropped from opts, but warning-message
-     * will be generated and returned.
+     * Applies defaults to all absent optional fields, validates control_channel
+     * is set and its corresponding mandatory fields are present (dest_ip/dest_port
+     * for Unix; ami_host/ami_port/ami_user/ami_secret for Ami), checks port ranges,
+     * and validates all change events. Invalid or no-op change events are silently
+     * dropped from opts, but warning-message will be generated and returned.
      *
      * @param opts StreamOptions to validate and mutate in-place.
      * @return ValidationResult with ok=false if any hard error was found.

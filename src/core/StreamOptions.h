@@ -10,6 +10,9 @@
 
 
 enum class TriggerType { None, AfterPackets, AfterSeconds };
+
+/// @brief Selects which IControlChannel implementation RtpEngine constructs.
+/// Unset is invalid at validation time and always rejected by check_configuration().
 enum class ControlChannelType { Unset, Unix, Ami };
 
 /**
@@ -110,7 +113,9 @@ struct TransportChange {
 /**
  * @brief Top-level configuration for a single RTP stream session.
  *
- * Only dest_ip and dest_port are mandatory. All other fields fall back to
+ * control_channel is always mandatory. dest_ip/dest_port are mandatory only
+ * for ControlChannelType::Unix; ami_host/ami_port/ami_user/ami_secret are
+ * mandatory only for ControlChannelType::Ami. All other fields fall back to
  * defaults applied by check_configuration().
  */
 struct StreamOptions {
