@@ -65,8 +65,10 @@ void ScenarioEngine::extract_initial_state_values(const StreamOptions& opts) {
     m_state.current_clockrate = opts.start_clockrate.value();
     m_state.trigger_type = opts.trigger_type.value();
 
-    m_state.current_dest_ip = opts.dest_ip;
-    m_state.current_dest_port = opts.dest_port.value();
+    if (opts.control_channel == ControlChannelType::Unix) {
+        m_state.current_dest_ip = opts.dest_ip;
+        m_state.current_dest_port = opts.dest_port.value();
+    }
     m_state.current_src_port = opts.source_port.value();
 }
 

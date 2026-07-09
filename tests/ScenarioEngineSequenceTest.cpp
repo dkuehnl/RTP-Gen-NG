@@ -15,7 +15,7 @@ protected:
     StreamOptions m_opts{};
 
     void SetUp() override {
-        m_opts = create_minimal_stream_options();
+        m_opts = create_minimal_unix_stream_options();
         m_opts.trigger_type = TriggerType::AfterPackets;
 
         SequenceChange seq_change;

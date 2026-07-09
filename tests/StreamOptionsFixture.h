@@ -91,13 +91,41 @@ inline StreamOptions create_full_stream_options() {
 }
 
 /**
- * @brief Creates a minimal StreamOptions (only mandatory fields).
+ * @brief Creates a minimal StreamOptions (only mandatory fields) for Unix-Control-Channel.
  * Useful for testing default-value application.
  */
-inline StreamOptions create_minimal_stream_options() {
+inline StreamOptions create_minimal_unix_stream_options() {
     StreamOptions opts;
+    opts.control_channel = ControlChannelType::Unix;
     opts.dest_ip = "192.168.1.100";
     opts.dest_port = 5004;
+    opts.source_port = 30001;
+    opts.use_tcp = false;
+
+    // Packetization timing
+    opts.ptime_in_packet = 20;      // 20ms declared in packet
+    opts.ptime_btw_packet = 20;     // 20ms actual send interval
+
+    // Stream start values
+    opts.start_ssrc = 0xDEADBEEF;
+    opts.start_timestamp = 1000;
+    opts.timestamp_step_size = 160;  // 20ms @ 8kHz
+    opts.start_codec = 8;            // PCMA
+    opts.start_clockrate = 8000;
+    opts.start_seq = 42;
+    opts.seq_steps = 1;
+    opts.trigger_type = TriggerType::AfterSeconds;
+    return opts;
+}
+
+/**
+ * @brief Creates a minimal StreamOptions (only mandatory fields) for AMI-Control-Channel.
+ * Useful for testing default-value application.
+ */
+inline StreamOptions create_minimal_ami_stream_options() {
+    StreamOptions opts;
+    opts.control_channel = ControlChannelType::Ami;
+
     opts.source_port = 30001;
     opts.use_tcp = false;
 
@@ -121,7 +149,7 @@ inline StreamOptions create_minimal_stream_options() {
  * @brief Creates a StreamOptions with only one SSRC change for testing.
  */
 inline StreamOptions create_ssrc_change() {
-    auto opts = create_minimal_stream_options();
+    auto opts = create_minimal_unix_stream_options();
 
     opts.trigger_type = TriggerType::AfterPackets;
     SSRCChange evt1;
@@ -138,7 +166,7 @@ inline StreamOptions create_ssrc_change() {
  * @brief Creates a StreamOptions with only one Timestamp change for testing.
  */
 inline StreamOptions create_timestamp_change() {
-    auto opts = create_minimal_stream_options();
+    auto opts = create_minimal_unix_stream_options();
 
     opts.trigger_type = TriggerType::AfterPackets;
     TimestampChange evt;
@@ -153,7 +181,7 @@ inline StreamOptions create_timestamp_change() {
  * @brief Creates a StreamOptions with only one Codec change for testing.
  */
 inline StreamOptions create_codec_change() {
-    auto opts = create_minimal_stream_options();
+    auto opts = create_minimal_unix_stream_options();
 
     opts.trigger_type = TriggerType::AfterPackets;
     CodecChange evt;
@@ -170,7 +198,7 @@ inline StreamOptions create_codec_change() {
  * @brief Creates a StreamOptions with only SSRC changes for focused testing.
  */
 inline StreamOptions create_two_ssrc_changes() {
-    auto opts = create_minimal_stream_options();
+    auto opts = create_minimal_unix_stream_options();
 
     opts.trigger_type = TriggerType::AfterPackets;
     SSRCChange evt1;
@@ -190,7 +218,7 @@ inline StreamOptions create_two_ssrc_changes() {
  * @brief Creates a StreamOptions with time-based triggers for testing AfterSeconds.
  */
 inline StreamOptions create_time_based_triggers() {
-    auto opts = create_minimal_stream_options();
+    auto opts = create_minimal_unix_stream_options();
     opts.trigger_type = TriggerType::AfterSeconds;
 
     // Pause after 1 second

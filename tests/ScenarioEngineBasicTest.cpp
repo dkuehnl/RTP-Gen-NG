@@ -13,21 +13,42 @@ protected:
     StreamOptions m_opts{};
     std::optional<ScenarioEngine> m_engine;
     void SetUp() override {
-        m_opts = create_minimal_stream_options();
+        m_opts = create_minimal_unix_stream_options();
         m_engine.emplace(m_opts);
     }
 };
 
-TEST_F(ScenarioEngineBasicTest, FillStartValuesIntoStreamState) {
+TEST_F(ScenarioEngineBasicTest, FillStartValuesIntoStreamStateForUNIX) {
 
     const auto& state = m_engine->get_state();
 
     EXPECT_EQ(state.current_ssrc, m_opts.start_ssrc.value());
-    EXPECT_EQ(state.current_timestamp, m_opts.start_timestamp.value());
     EXPECT_EQ(state.current_seq, m_opts.start_seq.value());
+    EXPECT_EQ(state.current_timestamp, m_opts.start_timestamp.value());
+    EXPECT_EQ(state.current_timestamp_step_size, m_opts.timestamp_step_size.value());
+    EXPECT_EQ(state.current_ptime_in_packet, m_opts.ptime_in_packet.value());
     EXPECT_EQ(state.current_codec, m_opts.start_codec.value());
     EXPECT_EQ(state.current_clockrate, m_opts.start_clockrate.value());
     EXPECT_EQ(state.trigger_type, m_opts.trigger_type.value());
+    EXPECT_EQ(state.current_dest_ip, m_opts.dest_ip);
+    EXPECT_EQ(state.current_dest_port, m_opts.dest_port.value());
+    EXPECT_EQ(state.current_src_port, m_opts.source_port.value());
+}
+
+TEST_F(ScenarioEngineBasicTest, FillStartValuesIntoStreamStateForAMI) {
+    auto opts = create_minimal_ami_stream_options();
+    ScenarioEngine engine(opts);
+    const auto& state = engine.get_state();
+
+    EXPECT_EQ(state.current_ssrc, m_opts.start_ssrc.value());
+    EXPECT_EQ(state.current_seq, m_opts.start_seq.value());
+    EXPECT_EQ(state.current_timestamp, m_opts.start_timestamp.value());
+    EXPECT_EQ(state.current_timestamp_step_size, m_opts.timestamp_step_size.value());
+    EXPECT_EQ(state.current_ptime_in_packet, m_opts.ptime_in_packet.value());
+    EXPECT_EQ(state.current_codec, m_opts.start_codec.value());
+    EXPECT_EQ(state.current_clockrate, m_opts.start_clockrate.value());
+    EXPECT_EQ(state.trigger_type, m_opts.trigger_type.value());
+
 }
 
 //Because the function of the following test is made via template, it
