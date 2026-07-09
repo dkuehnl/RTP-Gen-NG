@@ -81,9 +81,7 @@ void RtpEngine::wire_control_channel() {
 }
 
 std::unique_ptr<IControlChannel> RtpEngine::create_control_channel(const StreamOptions& opts) {
-    auto type = opts.control_channel;
-
-    switch (type) {
+    switch (opts.control_channel) {
         case ControlChannelType::Unix:
             return std::make_unique<UnixSocketControlChannel>("/tmp/rtpgen.sock");
 
@@ -93,6 +91,10 @@ std::unique_ptr<IControlChannel> RtpEngine::create_control_channel(const StreamO
                 opts.ami_port.value(),
                 opts.ami_user.value(),
                 opts.ami_secret.value());
+
+        case ControlChannelType::Unset:
+            throw std::logic_error("create_control_channel: control-channel was Unset - validator should have resolved that before.");
+
     }
 
     throw std::runtime_error("create_control_channel: unhandled ControlChannelType");
